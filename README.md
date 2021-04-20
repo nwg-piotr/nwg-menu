@@ -1,2 +1,3 @@
 # nwg-panel-plugin-menu
-This plugin adds the start menu to nwg-panel
+
+Just started work: a  plugin to add the start menu to nwg-panel
