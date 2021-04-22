@@ -20,6 +20,8 @@ import (
 
 const version = "0.0.1"
 
+var categories = [...]string{"AudioVideo", "Accessories", "Games", "Graphics", "Internet", "Office", "System", "Utility"}
+
 var (
 	appDirs                   []string
 	configDirectory           string
