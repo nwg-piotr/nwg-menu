@@ -2,20 +2,19 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/glib"
-	"github.com/gotk3/gotk3/gtk"
 	"github.com/joshuarubin/go-sway"
 )
 
@@ -41,7 +40,7 @@ func inPinned(taskID string) bool {
 	return false
 }
 
-func createImage(appID string, size int) (*gtk.Image, error) {
+/*func createImage(appID string, size int) (*gtk.Image, error) {
 	name, err := getIcon(appID)
 	if err != nil {
 		name = appID
@@ -91,7 +90,7 @@ func createPixbuf(icon string, size int) (*gdk.Pixbuf, error) {
 		return pixbuf, nil
 	}
 	return pixbuf, nil
-}
+}*/
 
 func cacheDir() string {
 	if os.Getenv("XDG_CACHE_HOME") != "" {
@@ -197,6 +196,170 @@ func getAppDirs() []string {
 	return dirs
 }
 
+func listFiles(dir string) ([]fs.FileInfo, error) {
+	files, err := ioutil.ReadDir(dir)
+	if err == nil {
+		return files, nil
+	}
+	return nil, err
+}
+
+func listDesktopFiles() []string {
+	var paths []string
+	for _, dir := range appDirs {
+		dirs, err := listFiles(dir)
+		if err == nil {
+			for _, file := range dirs {
+				parts := strings.Split(file.Name(), ".")
+				if parts[len(parts)-1] == "desktop" {
+					paths = append(paths, filepath.Join(dir, file.Name()))
+				}
+			}
+		}
+	}
+	return paths
+}
+
+func getCategoriesDetails() []category {
+	path := "/usr/share/nwg-panel-plugin-menu/desktop-directories"
+	var cats []category
+	var other category
+	files, err := listFiles(path)
+	if err == nil {
+		for _, file := range files {
+			lines, err := loadTextFile(filepath.Join(path, file.Name()))
+			if err == nil {
+				var cat category
+				name := ""
+				nameLoc := ""
+				icon := ""
+
+				for _, l := range lines {
+					if strings.HasPrefix(l, "Name=") {
+						name = strings.Split(l, "=")[1]
+						continue
+					}
+					if strings.HasPrefix(l, fmt.Sprintf("Name[%s]=", strings.Split(*lang, "_")[0])) {
+						nameLoc = strings.Split(l, "=")[1]
+						continue
+					}
+					if strings.HasPrefix(l, "Icon=") {
+						icon = strings.Split(l, "=")[1]
+						continue
+					}
+				}
+
+				if nameLoc == "" {
+					for _, l := range lines {
+						if strings.HasPrefix(l, fmt.Sprintf("Name[%s]=", *lang)) {
+							nameLoc = strings.Split(l, "=")[1]
+							break
+						}
+					}
+				}
+				if nameLoc != "" {
+					cat.Name = nameLoc
+				} else {
+					cat.Name = name
+				}
+				cat.Icon = icon
+
+				// We want "other" to be the last one. Let's append it when already sorted
+				if file.Name() != "other.directory" {
+					cats = append(cats, cat)
+				} else {
+					other = cat
+				}
+			}
+
+		}
+	}
+	sort.Slice(cats, func(i, j int) bool {
+		return cats[i].Name < cats[j].Name
+	})
+	cats = append(cats, other)
+
+	return cats
+}
+
+func parseDesktopFiles(desktopFiles []string) {
+	var added []string
+	skipped := 0
+	hidden := 0
+	for _, file := range desktopFiles {
+		lines, err := loadTextFile(file)
+		if err == nil {
+			parts := strings.Split(file, "/")
+			desktopID := parts[len(parts)-1]
+			name := ""
+			nameLoc := ""
+			icon := ""
+			exec := ""
+			terminal := false
+			noDisplay := false
+
+			for _, l := range lines {
+				if strings.HasPrefix(l, "[") && l != "[Desktop Entry]" {
+					break
+				}
+				if strings.HasPrefix(l, "Name=") {
+					name = strings.Split(l, "=")[1]
+					continue
+				}
+				if strings.HasPrefix(l, fmt.Sprintf("Name[%s]=", strings.Split(*lang, "_")[0])) {
+					nameLoc = strings.Split(l, "=")[1]
+					continue
+				}
+				if strings.HasPrefix(l, "Icon=") {
+					icon = strings.Split(l, "=")[1]
+					continue
+				}
+				if strings.HasPrefix(l, "Exec=") {
+					exec = strings.Split(l, "=")[1]
+					continue
+				}
+				if l == "Terminal=true" {
+					terminal = true
+					continue
+				}
+				if l == "NoDisplay=true" {
+					noDisplay = true
+					hidden++
+					continue
+				}
+			}
+
+			// if name[ln] not found, let's try to find name[ln_LN]
+			if nameLoc == "" {
+				for _, l := range lines {
+					if strings.HasPrefix(l, fmt.Sprintf("Name[%s]=", *lang)) {
+						nameLoc = strings.Split(l, "=")[1]
+						break
+					}
+				}
+			}
+
+			if !isIn(added, desktopID) {
+				added = append(added, desktopID)
+
+				var entry desktopEntry
+				entry.DesktopID = desktopID
+				entry.Name = name
+				entry.NameLoc = nameLoc
+				entry.Icon = icon
+				entry.Exec = exec
+				entry.Terminal = terminal
+				entry.NoDisplay = noDisplay
+				desktopEntries = append(desktopEntries, entry)
+
+			} else {
+				skipped++
+			}
+		}
+	}
+	println(fmt.Sprintf("Skipped %v duplicates; %v .desktop entries hidden by \"NoDisplay=true\"", skipped, hidden))
+}
+
 func isIn(slice []string, val string) bool {
 	for _, item := range slice {
 		if item == val {
@@ -204,128 +367,6 @@ func isIn(slice []string, val string) bool {
 		}
 	}
 	return false
-}
-
-func getIcon(appName string) (string, error) {
-	p := ""
-	for _, d := range appDirs {
-		path := filepath.Join(d, fmt.Sprintf("%s.desktop", appName))
-		if pathExists(path) {
-			p = path
-		} else if pathExists(strings.ToLower(path)) {
-			p = strings.ToLower(path)
-		}
-	}
-	/* Some apps' app_id varies from their .desktop file name, e.g. 'gimp-2.9.9' or 'pamac-manager'.
-	   Let's try to find a matching .desktop file name */
-	if !strings.HasPrefix(appName, "/") && p == "" { // skip icon paths given instead of names
-		p = searchDesktopDirs(appName)
-	}
-
-	if p != "" {
-		lines, err := loadTextFile(p)
-		if err != nil {
-			return "", err
-		}
-		for _, line := range lines {
-			if strings.HasPrefix(strings.ToUpper(line), "ICON") {
-				return strings.Split(line, "=")[1], nil
-			}
-		}
-	}
-	return "", errors.New("Couldn't find the icon")
-}
-
-func searchDesktopDirs(badAppID string) string {
-	b4Hyphen := strings.Split(badAppID, "-")[0]
-	for _, d := range appDirs {
-		items, _ := ioutil.ReadDir(d)
-		for _, item := range items {
-			if strings.Contains(item.Name(), b4Hyphen) {
-				//Let's check items starting from 'org.' first
-				if strings.Count(item.Name(), ".") > 1 {
-					return filepath.Join(d, item.Name())
-				}
-			}
-		}
-	}
-	return ""
-}
-
-func getExec(appName string) (string, error) {
-	cmd := appName
-	if strings.HasPrefix(strings.ToUpper(appName), "GIMP") {
-		cmd = "gimp"
-	}
-	for _, d := range appDirs {
-		files, _ := ioutil.ReadDir(d)
-		path := ""
-		for _, f := range files {
-			if strings.HasSuffix(f.Name(), ".desktop") {
-				if f.Name() == fmt.Sprintf("%s.desktop", appName) ||
-					f.Name() == fmt.Sprintf("%s.desktop", strings.ToLower(appName)) {
-					path = filepath.Join(d, f.Name())
-					break
-				}
-			}
-		}
-
-		// as above in getIcon - for tasks w/ improper app_id
-		if path == "" {
-			path = searchDesktopDirs(appName)
-		}
-
-		if path != "" {
-			lines, err := loadTextFile(path)
-			if err != nil {
-				return "", err
-			}
-			for _, line := range lines {
-				if strings.HasPrefix(strings.ToUpper(line), "EXEC") {
-					l := line[5:]
-					cutAt := strings.Index(l, "%")
-					if cutAt != -1 {
-						l = l[:cutAt-1]
-					}
-					cmd = l
-					break
-				}
-			}
-			return cmd, nil
-		}
-	}
-	return cmd, nil
-}
-
-func getName(appName string) string {
-	name := appName
-	for _, d := range appDirs {
-		files, _ := ioutil.ReadDir(d)
-		path := ""
-		for _, f := range files {
-			if strings.HasSuffix(f.Name(), ".desktop") {
-				if f.Name() == fmt.Sprintf("%s.desktop", appName) ||
-					f.Name() == fmt.Sprintf("%s.desktop", strings.ToLower(appName)) {
-					path = filepath.Join(d, f.Name())
-					break
-				}
-			}
-		}
-
-		if path != "" {
-			lines, err := loadTextFile(path)
-			if err != nil {
-				return name
-			}
-			for _, line := range lines {
-				if strings.HasPrefix(strings.ToUpper(line), "NAME") {
-					name = line[5:]
-					break
-				}
-			}
-		}
-	}
-	return name
 }
 
 func pathExists(name string) bool {
@@ -401,7 +442,7 @@ func savePinned() {
 	}
 }
 
-func launch(ID string) {
+/*func launch(ID string) {
 	e, err := getExec(ID)
 	if err != nil {
 		println(err)
@@ -441,13 +482,9 @@ func launch(ID string) {
 	go cmd.Run()
 
 	if *autohide {
-		/*src, _ = glib.TimeoutAdd(uint(1000), func() bool {
-			dockWindow.Hide()
-			return false
-		})*/
 		mainWindow.Hide()
 	}
-}
+}*/
 
 // Returns map output name -> gdk.Monitor
 func mapOutputs() (map[string]*gdk.Monitor, error) {

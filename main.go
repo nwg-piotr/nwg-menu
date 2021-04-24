@@ -20,7 +20,17 @@ import (
 
 const version = "0.0.1"
 
-var categories = [...]string{"AudioVideo", "Accessories", "Games", "Graphics", "Internet", "Office", "System", "Utility"}
+var categories = [...]string{
+	"utility",
+	"development",
+	"game",
+	"graphics",
+	"internet-and-network",
+	"office",
+	"audio-video",
+	"system-tools",
+	"other",
+}
 
 var (
 	appDirs                   []string
@@ -34,6 +44,23 @@ var (
 	currentWsNum, targetWsNum int64
 	mainWindow                *gtk.Window
 )
+
+type category struct {
+	Name string
+	Icon string
+}
+
+type desktopEntry struct {
+	DesktopID string
+	Name      string
+	NameLoc   string
+	Icon      string
+	Exec      string
+	Terminal  bool
+	NoDisplay bool
+}
+
+var desktopEntries []desktopEntry
 
 // Flags
 var cssFileName = flag.String("s", "style.css", "Styling: css file name")
@@ -92,24 +119,38 @@ func main() {
 	}
 	defer lockFile.Close()
 
+	// LANGUAGE
+	if *lang == "" && os.Getenv("LANG") != "" {
+		*lang = strings.Split(os.Getenv("LANG"), ".")[0]
+	}
+	println(fmt.Sprintf("lang: %s", *lang))
+
+	// ENVIRONMENT
 	configDirectory = configDir()
 
 	cacheDirectory := cacheDir()
 	if cacheDirectory == "" {
 		log.Panic("Couldn't determine cache directory location")
 	}
+
+	// DATA
 	pinnedFile = filepath.Join(cacheDirectory, "nwg-dock-pinned")
 	cssFile := filepath.Join(configDirectory, *cssFileName)
 
 	appDirs = getAppDirs()
-	for _, dir := range appDirs {
-		println(dir)
-	}
-	if *lang == "" && os.Getenv("LANG") != "" {
-		*lang = strings.Split(os.Getenv("LANG"), ".")[0]
-	}
-	println(fmt.Sprintf("lang: %s", *lang))
 
+	print("Categories: ")
+	for _, cat := range getCategoriesDetails() {
+		print(fmt.Sprintf("%s, ", cat.Name))
+	}
+	println()
+
+	desktopFiles := listDesktopFiles()
+	println(fmt.Sprintf("Found %v desktop files", len(desktopFiles)))
+
+	parseDesktopFiles(desktopFiles)
+
+	// USER INTERFACE
 	gtk.Init(nil)
 
 	cssProvider, _ := gtk.CssProviderNew()
@@ -118,7 +159,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("%s file not found, using GTK styling\n", cssFile)
 	} else {
-		fmt.Printf("Using style: %s\n", cssFile)
+		println(fmt.Sprintf("Using style: %s\n", cssFile))
 		screen, _ := gdk.ScreenGetDefault()
 		gtk.AddProviderForScreen(screen, cssProvider, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 	}

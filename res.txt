@@ -1,0 +1,1 @@
+Using style: /home/piotr/.config/nwg-panel/style.css
