@@ -125,3 +125,41 @@ func setUpUserDirsListRow(iconName, displayName, entryName string, userDirsMap m
 
 	return row
 }
+
+func setUpButtonBox() *gtk.EventBox {
+	eventBox, _ := gtk.EventBoxNew()
+	wrapperHbox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
+	box, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
+	wrapperHbox.PackStart(box, true, true, 10)
+	eventBox.Add(wrapperHbox)
+
+	btn, _ := gtk.ButtonNew()
+	pixbuf, _ := createPixbuf("system-log-out", *iconSizeLarge)
+	img, _ := gtk.ImageNewFromPixbuf(pixbuf)
+	btn.SetImage(img)
+	box.PackStart(btn, false, true, 6)
+
+	btn, _ = gtk.ButtonNew()
+	pixbuf, _ = createPixbuf("system-lock-screen", *iconSizeLarge)
+	img, _ = gtk.ImageNewFromPixbuf(pixbuf)
+	btn.SetImage(img)
+	box.PackStart(btn, false, true, 6)
+
+	btn, _ = gtk.ButtonNew()
+	pixbuf, _ = createPixbuf("system-reboot", *iconSizeLarge)
+	img, _ = gtk.ImageNewFromPixbuf(pixbuf)
+	btn.SetImage(img)
+	box.PackStart(btn, false, true, 6)
+
+	btn, _ = gtk.ButtonNew()
+	pixbuf, _ = createPixbuf("system-shutdown", *iconSizeLarge)
+	img, _ = gtk.ImageNewFromPixbuf(pixbuf)
+	btn.SetImage(img)
+	box.PackStart(btn, false, true, 6)
+
+	eventBox.Connect("enter-notify-event", func() {
+		cancelClose()
+	})
+
+	return eventBox
+}
