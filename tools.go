@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -348,7 +349,7 @@ func parseDesktopFiles(desktopFiles []string) {
 					continue
 				}
 				if strings.HasPrefix(l, "Exec=") {
-					exec = strings.Split(l, "=")[1]
+					exec = strings.Split(l, "Exec=")[1]
 					continue
 				}
 				if l == "Terminal=true" {
@@ -477,16 +478,19 @@ func savePinned() {
 	}
 }
 
-/*func launch(ID string) {
-	e, err := getExec(ID)
-	if err != nil {
-		println(err)
+func launch(command string) {
+	// trim % and everything afterwards
+	if strings.Contains(command, "%") {
+		cutAt := strings.Index(command, "%")
+		if cutAt != -1 {
+			command = command[:cutAt-1]
+		}
 	}
 
-	elements := strings.Split(e, " ")
+	elements := strings.Split(command, " ")
 
 	// find prepended env variables, if any
-	envVarsNum := strings.Count(e, "=")
+	envVarsNum := strings.Count(command, "=")
 	var envVars []string
 
 	cmdIdx := 0
@@ -504,6 +508,7 @@ func savePinned() {
 
 	cmd := exec.Command(elements[cmdIdx], elements[1+cmdIdx:]...)
 
+	// set env variables
 	if len(envVars) > 0 {
 		cmd.Env = os.Environ()
 		for _, envVar := range envVars {
@@ -516,10 +521,11 @@ func savePinned() {
 
 	go cmd.Run()
 
-	if *autohide {
-		mainWindow.Hide()
-	}
-}*/
+	glib.TimeoutAdd(uint(500), func() bool {
+		gtk.MainQuit()
+		return false
+	})
+}
 
 // Returns map output name -> gdk.Monitor
 func mapOutputs() (map[string]*gdk.Monitor, error) {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
 )
 
@@ -14,10 +15,15 @@ func setUpPinnedListBox() *gtk.ListBox {
 		println(fmt.Sprintf("Loaded %v pinned items", len(pinnedFile)))
 		for _, l := range lines {
 			entry := id2entry[l]
+
 			row, _ := gtk.ListBoxRowNew()
 			vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
+
+			// We need gtk.EventBox to detect mouse event
+			eventBox, _ := gtk.EventBoxNew()
 			hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 6)
-			vBox.PackStart(hBox, false, false, 2)
+			eventBox.Add(hBox)
+			vBox.PackStart(eventBox, false, false, 2)
 
 			pixbuf, _ := createPixbuf(entry.Icon, *iconSizeLarge)
 			img, _ := gtk.ImageNewFromPixbuf(pixbuf)
@@ -33,6 +39,23 @@ func setUpPinnedListBox() *gtk.ListBox {
 			}
 			hBox.PackStart(lbl, false, false, 0)
 			row.Add(vBox)
+
+			row.Connect("activate", func() {
+				launch(entry.Exec)
+			})
+
+			eventBox.Connect("button-release-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
+				btnEvent := gdk.EventButtonNewFromEvent(e)
+				if btnEvent.Button() == 1 {
+					launch(entry.Exec)
+					return true
+				} else if btnEvent.Button() == 3 {
+					println("Unpin ", entry.DesktopID)
+					return true
+				}
+				return false
+			})
+
 			listBox.Add(row)
 		}
 	} else {

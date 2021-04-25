@@ -278,8 +278,6 @@ func main() {
 
 	buttonBox := setUpButtonBox()
 	rightColumn.PackEnd(buttonBox, false, true, 10)
-	//l, _ := gtk.LabelNew("I am The Placeholder for Buttons ")
-	//rightColumn.PackEnd(l, false, true, 10)
 
 	win.SetSizeRequest(0, screenHeight/2)
 
