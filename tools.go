@@ -92,6 +92,58 @@ func inPinned(taskID string) bool {
 	return pixbuf, nil
 }*/
 
+func mapXdgUserDirs() map[string]string {
+	result := make(map[string]string)
+	home := os.Getenv("HOME")
+
+	result["home"] = home
+	result["documents"] = filepath.Join(home, "Documents")
+	result["downloads"] = filepath.Join(home, "Downloads")
+	result["music"] = filepath.Join(home, "Music")
+	result["pictures"] = filepath.Join(home, "Pictures")
+	result["videos"] = filepath.Join(home, "Videos")
+
+	userDirsFile := filepath.Join(home, ".config/user-dirs.dirs")
+	if pathExists(userDirsFile) {
+		println(fmt.Sprintf("Using XDG user dirs from %s", userDirsFile))
+		lines, _ := loadTextFile(userDirsFile)
+		for _, l := range lines {
+			if strings.HasPrefix(l, "XDG_DOCUMENTS_DIR") {
+				result["documents"] = getUserDir(home, l)
+				continue
+			}
+			if strings.HasPrefix(l, "XDG_DOWNLOAD_DIR") {
+				result["downloads"] = getUserDir(home, l)
+				continue
+			}
+			if strings.HasPrefix(l, "XDG_MUSIC_DIR") {
+				result["music"] = getUserDir(home, l)
+				continue
+			}
+			if strings.HasPrefix(l, "XDG_PICTURES_DIR") {
+				result["pictures"] = getUserDir(home, l)
+				continue
+			}
+			if strings.HasPrefix(l, "XDG_VIDEOS_DIR") {
+				result["videos"] = getUserDir(home, l)
+			}
+		}
+	} else {
+		println(fmt.Sprintf("%s file not found, using defaults", userDirsFile))
+	}
+
+	return result
+}
+
+func getUserDir(home, line string) string {
+	// line is supposed to look like XDG_DOCUMENTS_DIR="$HOME/Dokumenty"
+	result := strings.Split(line, "=")[1]
+	result = strings.Replace(result, "$HOME", home, 1)
+
+	// trim ""
+	return result[1 : len(result)-1]
+}
+
 func cacheDir() string {
 	if os.Getenv("XDG_CACHE_HOME") != "" {
 		return os.Getenv("XDG_CONFIG_HOME")

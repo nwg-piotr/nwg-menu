@@ -249,24 +249,31 @@ func main() {
 	leftBox, _ = gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
 	alignmentBox.PackStart(leftBox, true, true, 10)
 
-	leftVBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
-	leftBox.PackStart(leftVBox, true, true, 0)
+	leftColumn, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
+	leftBox.PackStart(leftColumn, true, true, 0)
 
 	categoriesListBox := setUpCategoriesList()
-	leftVBox.PackStart(categoriesListBox, false, false, 0)
+	leftColumn.PackStart(categoriesListBox, false, false, 0)
 
 	searchEntry := setUpSearchEntry()
-	leftVBox.PackEnd(searchEntry, false, false, 6)
+	leftColumn.PackEnd(searchEntry, false, false, 6)
 
 	rightBox, _ = gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
 	alignmentBox.PackStart(rightBox, true, true, 0)
 
-	l, _ := gtk.LabelNew("Right box not yet ready. Be patient.")
-	rightBox.PackStart(l, true, false, 10)
+	rightColumn, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
+	rightBox.PackStart(rightColumn, true, true, 0)
+
+	userDirsList := setUpUserDirsList()
+	rightColumn.PackStart(userDirsList, false, true, 10)
+
+	l, _ := gtk.LabelNew("I am The Placeholder for Buttons ")
+	rightColumn.PackEnd(l, false, true, 10)
 
 	win.SetSizeRequest(0, screenHeight/2)
 
 	win.ShowAll()
+	categoriesListBox.UnselectAll()
 	searchEntry.GrabFocus()
 
 	gtk.Main()
