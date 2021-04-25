@@ -20,7 +20,7 @@ import (
 
 const version = "0.0.1"
 
-var categories = [...]string{
+var categoryNames = [...]string{
 	"utility",
 	"development",
 	"game",
@@ -37,18 +37,22 @@ var (
 	configDirectory           string
 	pinnedFile                string
 	pinned                    []string
-	mainBox                   *gtk.Box
+	leftBox                   *gtk.Box
+	rightBox                  *gtk.Box
 	src                       glib.SourceHandle
 	refresh                   bool // we will use this to trigger rebuilding mainBox
 	imgSizeScaled             int
 	currentWsNum, targetWsNum int64
-	mainWindow                *gtk.Window
+	win                       *gtk.Window
 )
 
 type category struct {
-	Name string
-	Icon string
+	Name        string
+	DisplayName string
+	Icon        string
 }
+
+var categories []category
 
 type desktopEntry struct {
 	DesktopID string
@@ -63,7 +67,7 @@ type desktopEntry struct {
 var desktopEntries []desktopEntry
 
 // Flags
-var cssFileName = flag.String("s", "style.css", "Styling: css file name")
+var cssFileName = flag.String("s", "menu-start.css", "Styling: css file name")
 var targetOutput = flag.String("o", "", "name of Output to display the menu on")
 var displayVersion = flag.Bool("v", false, "display Version information")
 var autohide = flag.Bool("d", false, "auto-hiDe: close window when left")
@@ -139,9 +143,10 @@ func main() {
 
 	appDirs = getAppDirs()
 
+	setUpCategories()
 	print("Categories: ")
-	for _, cat := range getCategoriesDetails() {
-		print(fmt.Sprintf("%s, ", cat.Name))
+	for _, cat := range categories {
+		print(fmt.Sprintf("%s (%s) ", cat.DisplayName, cat.Name))
 	}
 	println()
 
@@ -168,11 +173,10 @@ func main() {
 	if err != nil {
 		log.Fatal("Unable to create window:", err)
 	}
-	mainWindow = win
 
 	layershell.InitForWindow(win)
 
-	screenWidth := 0
+	//screenWidth := 0
 	screenHeight := 0
 
 	var output2mon map[string]*gdk.Monitor
@@ -184,7 +188,7 @@ func main() {
 			layershell.SetMonitor(win, monitor)
 
 			geometry := monitor.GetGeometry()
-			screenWidth = geometry.GetWidth()
+			//screenWidth = geometry.GetWidth()
 			screenHeight = geometry.GetHeight()
 
 		} else {
@@ -210,6 +214,8 @@ func main() {
 	layershell.SetMargin(win, layershell.LAYER_SHELL_EDGE_LEFT, *marginLeft)
 	layershell.SetMargin(win, layershell.LAYER_SHELL_EDGE_RIGHT, *marginRight)
 	layershell.SetMargin(win, layershell.LAYER_SHELL_EDGE_BOTTOM, *marginBottom)
+
+	layershell.SetKeyboardMode(win, layershell.LAYER_SHELL_KEYBOARD_MODE_EXCLUSIVE)
 
 	win.Connect("destroy", func() {
 		gtk.MainQuit()
@@ -238,17 +244,30 @@ func main() {
 	win.Add(outerBox)
 
 	alignmentBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
-	outerBox.PackStart(alignmentBox, true, true, 0)
+	outerBox.PackStart(alignmentBox, true, true, 10)
 
-	mainBox, _ = gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
-	alignmentBox.PackStart(mainBox, true, true, 0)
+	leftBox, _ = gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
+	alignmentBox.PackStart(leftBox, true, true, 10)
 
-	l, _ := gtk.LabelNew("Hi, I'm your Menu Start!")
-	mainBox.PackStart(l, true, false, 10)
+	leftVBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
+	leftBox.PackStart(leftVBox, true, true, 0)
 
-	win.SetSizeRequest(screenWidth/3, screenHeight*2/3)
+	categoriesListBox := setUpCategoriesList()
+	leftVBox.PackStart(categoriesListBox, false, false, 0)
+
+	searchEntry := setUpSearchEntry()
+	leftVBox.PackEnd(searchEntry, false, false, 6)
+
+	rightBox, _ = gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
+	alignmentBox.PackStart(rightBox, true, true, 0)
+
+	l, _ := gtk.LabelNew("Right box not yet ready. Be patient.")
+	rightBox.PackStart(l, true, false, 10)
+
+	win.SetSizeRequest(0, screenHeight/2)
 
 	win.ShowAll()
+	searchEntry.GrabFocus()
 
 	gtk.Main()
 }

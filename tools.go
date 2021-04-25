@@ -52,9 +52,9 @@ func inPinned(taskID string) bool {
 	image, _ := gtk.ImageNewFromPixbuf(pixbuf)
 
 	return image, nil
-}
+}*/
 
-func createPixbuf(icon string, size int) (*gdk.Pixbuf, error) {
+/*func createPixbuf(icon string, size int) (*gdk.Pixbuf, error) {
 	if strings.HasPrefix(icon, "/") {
 		pixbuf, err := gdk.PixbufNewFromFileAtSize(icon, size, size)
 		if err != nil {
@@ -220,66 +220,63 @@ func listDesktopFiles() []string {
 	return paths
 }
 
-func getCategoriesDetails() []category {
+func setUpCategories() {
 	path := "/usr/share/nwg-panel-plugin-menu/desktop-directories"
-	var cats []category
 	var other category
-	files, err := listFiles(path)
-	if err == nil {
-		for _, file := range files {
-			lines, err := loadTextFile(filepath.Join(path, file.Name()))
-			if err == nil {
-				var cat category
-				name := ""
-				nameLoc := ""
-				icon := ""
 
-				for _, l := range lines {
-					if strings.HasPrefix(l, "Name=") {
-						name = strings.Split(l, "=")[1]
-						continue
-					}
-					if strings.HasPrefix(l, fmt.Sprintf("Name[%s]=", strings.Split(*lang, "_")[0])) {
-						nameLoc = strings.Split(l, "=")[1]
-						continue
-					}
-					if strings.HasPrefix(l, "Icon=") {
-						icon = strings.Split(l, "=")[1]
-						continue
-					}
-				}
+	for _, cName := range categoryNames {
+		fileName := fmt.Sprintf("%s.directory", cName)
+		lines, err := loadTextFile(filepath.Join(path, fileName))
+		if err == nil {
+			var cat category
+			cat.Name = cName
 
-				if nameLoc == "" {
-					for _, l := range lines {
-						if strings.HasPrefix(l, fmt.Sprintf("Name[%s]=", *lang)) {
-							nameLoc = strings.Split(l, "=")[1]
-							break
-						}
-					}
-				}
-				if nameLoc != "" {
-					cat.Name = nameLoc
-				} else {
-					cat.Name = name
-				}
-				cat.Icon = icon
+			name := ""
+			nameLoc := ""
+			icon := ""
 
-				// We want "other" to be the last one. Let's append it when already sorted
-				if file.Name() != "other.directory" {
-					cats = append(cats, cat)
-				} else {
-					other = cat
+			for _, l := range lines {
+				if strings.HasPrefix(l, "Name=") {
+					name = strings.Split(l, "=")[1]
+					continue
+				}
+				if strings.HasPrefix(l, fmt.Sprintf("Name[%s]=", strings.Split(*lang, "_")[0])) {
+					nameLoc = strings.Split(l, "=")[1]
+					continue
+				}
+				if strings.HasPrefix(l, "Icon=") {
+					icon = strings.Split(l, "=")[1]
+					continue
 				}
 			}
 
+			if nameLoc == "" {
+				for _, l := range lines {
+					if strings.HasPrefix(l, fmt.Sprintf("Name[%s]=", *lang)) {
+						nameLoc = strings.Split(l, "=")[1]
+						break
+					}
+				}
+			}
+			if nameLoc != "" {
+				cat.DisplayName = nameLoc
+			} else {
+				cat.DisplayName = name
+			}
+			cat.Icon = icon
+
+			// We want "other" to be the last one. Let's append it when already sorted
+			if fileName != "other.directory" {
+				categories = append(categories, cat)
+			} else {
+				other = cat
+			}
 		}
 	}
-	sort.Slice(cats, func(i, j int) bool {
-		return cats[i].Name < cats[j].Name
+	sort.Slice(categories, func(i, j int) bool {
+		return categories[i].DisplayName < categories[j].DisplayName
 	})
-	cats = append(cats, other)
-
-	return cats
+	categories = append(categories, other)
 }
 
 func parseDesktopFiles(desktopFiles []string) {
