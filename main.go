@@ -44,6 +44,7 @@ var (
 	imgSizeScaled             int
 	currentWsNum, targetWsNum int64
 	win                       *gtk.Window
+	id2entry                  map[string]desktopEntry
 )
 
 type category struct {
@@ -78,6 +79,8 @@ var marginTop = flag.Int("mt", 0, "Margin Top")
 var marginLeft = flag.Int("ml", 0, "Margin Left")
 var marginRight = flag.Int("mr", 0, "Margin Right")
 var marginBottom = flag.Int("mb", 0, "Margin Bottom")
+var iconSizeLarge = flag.Int("isl", 32, "Icon Size Large")
+var iconSizeSmall = flag.Int("iss", 16, "Icon Size Small")
 var lang = flag.String("lang", "", "force lang, e.g. \"en\", \"pl\"")
 
 func main() {
@@ -138,7 +141,7 @@ func main() {
 	}
 
 	// DATA
-	pinnedFile = filepath.Join(cacheDirectory, "nwg-dock-pinned")
+	pinnedFile = filepath.Join(cacheDirectory, "nwg-pin-cache")
 	cssFile := filepath.Join(configDirectory, *cssFileName)
 
 	appDirs = getAppDirs()
@@ -252,6 +255,12 @@ func main() {
 	leftColumn, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 	leftBox.PackStart(leftColumn, true, true, 0)
 
+	pinnedListBox := setUpPinnedListBox()
+	leftColumn.PackStart(pinnedListBox, false, false, 0)
+
+	sep, _ := gtk.SeparatorNew(gtk.ORIENTATION_HORIZONTAL)
+	leftColumn.PackStart(sep, false, false, 10)
+
 	categoriesListBox := setUpCategoriesList()
 	leftColumn.PackStart(categoriesListBox, false, false, 0)
 
@@ -264,8 +273,8 @@ func main() {
 	rightColumn, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 	rightBox.PackStart(rightColumn, true, true, 0)
 
-	userDirsList := setUpUserDirsList()
-	rightColumn.PackStart(userDirsList, false, true, 10)
+	userDirsListBox := setUpUserDirsList()
+	rightColumn.PackStart(userDirsListBox, false, true, 10)
 
 	l, _ := gtk.LabelNew("I am The Placeholder for Buttons ")
 	rightColumn.PackEnd(l, false, true, 10)
@@ -273,6 +282,8 @@ func main() {
 	win.SetSizeRequest(0, screenHeight/2)
 
 	win.ShowAll()
+
+	pinnedListBox.UnselectAll()
 	categoriesListBox.UnselectAll()
 	searchEntry.GrabFocus()
 

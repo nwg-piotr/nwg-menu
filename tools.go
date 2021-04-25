@@ -15,6 +15,7 @@ import (
 
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/glib"
+	"github.com/gotk3/gotk3/gtk"
 	"github.com/joshuarubin/go-sway"
 )
 
@@ -40,21 +41,7 @@ func inPinned(taskID string) bool {
 	return false
 }
 
-/*func createImage(appID string, size int) (*gtk.Image, error) {
-	name, err := getIcon(appID)
-	if err != nil {
-		name = appID
-	}
-	pixbuf, err := createPixbuf(name, size)
-	if err != nil {
-		return nil, err
-	}
-	image, _ := gtk.ImageNewFromPixbuf(pixbuf)
-
-	return image, nil
-}*/
-
-/*func createPixbuf(icon string, size int) (*gdk.Pixbuf, error) {
+func createPixbuf(icon string, size int) (*gdk.Pixbuf, error) {
 	if strings.HasPrefix(icon, "/") {
 		pixbuf, err := gdk.PixbufNewFromFileAtSize(icon, size, size)
 		if err != nil {
@@ -69,28 +56,24 @@ func inPinned(taskID string) bool {
 		log.Fatal("Couldn't get default theme: ", err)
 	}
 	pixbuf, err := iconTheme.LoadIcon(icon, size, gtk.ICON_LOOKUP_FORCE_SIZE)
-	if err != nil {
-		ico, err := getIcon(icon)
-		if err != nil {
-			return nil, err
-		}
 
-		if strings.HasPrefix(ico, "/") {
-			pixbuf, err := gdk.PixbufNewFromFileAtSize(ico, size, size)
+	if err != nil {
+		if strings.HasPrefix(icon, "/") {
+			pixbuf, err := gdk.PixbufNewFromFileAtSize(icon, size, size)
 			if err != nil {
 				return nil, err
 			}
 			return pixbuf, nil
 		}
 
-		pixbuf, err := iconTheme.LoadIcon(ico, size, gtk.ICON_LOOKUP_FORCE_SIZE)
+		pixbuf, err := iconTheme.LoadIcon(icon, size, gtk.ICON_LOOKUP_FORCE_SIZE)
 		if err != nil {
 			return nil, err
 		}
 		return pixbuf, nil
 	}
 	return pixbuf, nil
-}*/
+}
 
 func mapXdgUserDirs() map[string]string {
 	result := make(map[string]string)
@@ -332,6 +315,7 @@ func setUpCategories() {
 }
 
 func parseDesktopFiles(desktopFiles []string) {
+	id2entry = make(map[string]desktopEntry)
 	var added []string
 	skipped := 0
 	hidden := 0
@@ -400,6 +384,8 @@ func parseDesktopFiles(desktopFiles []string) {
 				entry.Terminal = terminal
 				entry.NoDisplay = noDisplay
 				desktopEntries = append(desktopEntries, entry)
+
+				id2entry[entry.DesktopID] = entry
 
 			} else {
 				skipped++
