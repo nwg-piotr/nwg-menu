@@ -350,6 +350,12 @@ func parseDesktopFiles(desktopFiles []string) {
 				}
 				if strings.HasPrefix(l, "Exec=") {
 					exec = strings.Split(l, "Exec=")[1]
+					disallowed := [2]string{"\"", "'"}
+					for _, char := range disallowed {
+						if strings.Contains(exec, char) {
+							exec = strings.Replace(exec, char, "", -1)
+						}
+					}
 					continue
 				}
 				if l == "Terminal=true" {

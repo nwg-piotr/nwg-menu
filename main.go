@@ -247,6 +247,7 @@ func main() {
 	win.Add(outerBox)
 
 	alignmentBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
+	alignmentBox.SetHomogeneous(true)
 	outerBox.PackStart(alignmentBox, true, true, 10)
 
 	leftBox, _ = gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
@@ -268,7 +269,7 @@ func main() {
 	leftColumn.PackEnd(searchEntry, false, false, 6)
 
 	rightBox, _ = gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
-	alignmentBox.PackStart(rightBox, true, true, 0)
+	alignmentBox.PackStart(rightBox, true, true, 10)
 
 	rightColumn, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 	rightBox.PackStart(rightColumn, true, true, 0)

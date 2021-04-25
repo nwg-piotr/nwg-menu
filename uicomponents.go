@@ -160,25 +160,25 @@ func setUpButtonBox() *gtk.EventBox {
 	pixbuf, _ := createPixbuf("system-log-out", *iconSizeLarge)
 	img, _ := gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
-	box.PackStart(btn, false, true, 6)
+	box.PackStart(btn, true, true, 6)
 
 	btn, _ = gtk.ButtonNew()
 	pixbuf, _ = createPixbuf("system-lock-screen", *iconSizeLarge)
 	img, _ = gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
-	box.PackStart(btn, false, true, 6)
+	box.PackStart(btn, true, true, 6)
 
 	btn, _ = gtk.ButtonNew()
 	pixbuf, _ = createPixbuf("system-reboot", *iconSizeLarge)
 	img, _ = gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
-	box.PackStart(btn, false, true, 6)
+	box.PackStart(btn, true, true, 6)
 
 	btn, _ = gtk.ButtonNew()
 	pixbuf, _ = createPixbuf("system-shutdown", *iconSizeLarge)
 	img, _ = gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
-	box.PackStart(btn, false, true, 6)
+	box.PackStart(btn, true, true, 6)
 
 	eventBox.Connect("enter-notify-event", func() {
 		cancelClose()
