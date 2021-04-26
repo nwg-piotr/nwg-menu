@@ -17,6 +17,7 @@ func setUpPinnedListBox() *gtk.ListBox {
 			entry := id2entry[l]
 
 			row, _ := gtk.ListBoxRowNew()
+			row.SetSelectable(false)
 			vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 
 			// We need gtk.EventBox to detect mouse event
@@ -72,6 +73,7 @@ func setUpCategoriesList() *gtk.ListBox {
 	listBox, _ := gtk.ListBoxNew()
 	for _, cat := range categories {
 		row, _ := gtk.ListBoxRowNew()
+		row.SetSelectable(false)
 		vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 		hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 6)
 		vBox.PackStart(hBox, false, false, 2)
@@ -135,16 +137,31 @@ func setUpUserDirsListRow(iconName, displayName, entryName string, userDirsMap m
 		displayName = parts[(len(parts) - 1)]
 	}
 	row, _ := gtk.ListBoxRowNew()
+	row.SetSelectable(false)
 	vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
+	eventBox, _ := gtk.EventBoxNew()
 	hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 6)
-	vBox.PackStart(hBox, false, false, 10)
+	eventBox.Add(hBox)
+	vBox.PackStart(eventBox, false, false, 10)
 
 	img, _ := gtk.ImageNewFromIconName(iconName, gtk.ICON_SIZE_BUTTON)
 	hBox.PackStart(img, false, false, 0)
 	lbl, _ := gtk.LabelNew(displayName)
 	hBox.PackStart(lbl, false, false, 0)
 	row.Add(vBox)
-	row.SetTooltipText(userDirsMap[entryName])
+
+	row.Connect("activate", func() {
+		launch(fmt.Sprintf("%s %s", *fileManager, userDirsMap[entryName]))
+	})
+
+	eventBox.Connect("button-release-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
+		btnEvent := gdk.EventButtonNewFromEvent(e)
+		if btnEvent.Button() == 1 {
+			launch(fmt.Sprintf("%s %s", *fileManager, userDirsMap[entryName]))
+			return true
+		}
+		return false
+	})
 
 	return row
 }

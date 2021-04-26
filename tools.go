@@ -527,7 +527,7 @@ func launch(command string) {
 
 	go cmd.Run()
 
-	glib.TimeoutAdd(uint(500), func() bool {
+	glib.TimeoutAdd(uint(150), func() bool {
 		gtk.MainQuit()
 		return false
 	})
