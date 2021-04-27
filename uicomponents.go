@@ -72,7 +72,7 @@ func setUpPinnedListBox() *gtk.ListBox {
 func setUpCategoriesListBox() *gtk.ListBox {
 	listBox, _ := gtk.ListBoxNew()
 	for _, cat := range categories {
-		if catNotEmpty(cat.Name) {
+		if isSupposedToShowUp(cat.Name) {
 			row, _ := gtk.ListBoxRowNew()
 			row.SetSelectable(false)
 			vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
@@ -104,21 +104,21 @@ func setUpCategoriesListBox() *gtk.ListBox {
 	return listBox
 }
 
-func catNotEmpty(catName string) bool {
-	result := catName == "utility" && isSupposedToShowUp(listUtility) ||
-		catName == "development" && isSupposedToShowUp(listDevelopment) ||
-		catName == "game" && isSupposedToShowUp(listGame) ||
-		catName == "graphics" && isSupposedToShowUp(listGraphics) ||
-		catName == "internet-and-network" && isSupposedToShowUp(listInternetAndNetwork) ||
-		catName == "office" && isSupposedToShowUp(listOffice) ||
-		catName == "audio-video" && isSupposedToShowUp(listAudioVideo) ||
-		catName == "system-tools" && isSupposedToShowUp(listSystemTools) ||
-		catName == "other" && isSupposedToShowUp(listOther)
+func isSupposedToShowUp(catName string) bool {
+	result := catName == "utility" && notEmpty(listUtility) ||
+		catName == "development" && notEmpty(listDevelopment) ||
+		catName == "game" && notEmpty(listGame) ||
+		catName == "graphics" && notEmpty(listGraphics) ||
+		catName == "internet-and-network" && notEmpty(listInternetAndNetwork) ||
+		catName == "office" && notEmpty(listOffice) ||
+		catName == "audio-video" && notEmpty(listAudioVideo) ||
+		catName == "system-tools" && notEmpty(listSystemTools) ||
+		catName == "other" && notEmpty(listOther)
 
 	return result
 }
 
-func isSupposedToShowUp(listCategory []string) bool {
+func notEmpty(listCategory []string) bool {
 	if len(listCategory) == 0 {
 		return false
 	}
