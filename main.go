@@ -20,18 +20,6 @@ import (
 
 const version = "0.0.1"
 
-var categoryNames = [...]string{
-	"utility",
-	"development",
-	"game",
-	"graphics",
-	"internet-and-network",
-	"office",
-	"audio-video",
-	"system-tools",
-	"other",
-}
-
 var (
 	appDirs                   []string
 	configDirectory           string
@@ -46,6 +34,18 @@ var (
 	win                       *gtk.Window
 	id2entry                  map[string]desktopEntry
 )
+
+var categoryNames = [...]string{
+	"utility",
+	"development",
+	"game",
+	"graphics",
+	"internet-and-network",
+	"office",
+	"audio-video",
+	"system-tools",
+	"other",
+}
 
 type category struct {
 	Name        string
@@ -64,6 +64,19 @@ type desktopEntry struct {
 	Terminal  bool
 	NoDisplay bool
 }
+
+// slices below will hold DesktopID strings
+var (
+	listUtility            []string
+	listDevelopment        []string
+	listGame               []string
+	listGraphics           []string
+	listInternetAndNetwork []string
+	listOffice             []string
+	listAudioVideo         []string
+	listSystemTools        []string
+	listOther              []string
+)
 
 var desktopEntries []desktopEntry
 
@@ -157,6 +170,43 @@ func main() {
 	println(fmt.Sprintf("Found %v desktop files", len(desktopFiles)))
 
 	parseDesktopFiles(desktopFiles)
+
+	/*println("\n*Utility:")
+	for _, item := range listUtility {
+		println(item)
+	}
+	println("\n*Development:")
+	for _, item := range listDevelopment {
+		println(item)
+	}
+	println("\n*Game:")
+	for _, item := range listGame {
+		println(item)
+	}
+	println("\n*Graphics:")
+	for _, item := range listGraphics {
+		println(item)
+	}
+	println("\n*InternetAndNetwork:")
+	for _, item := range listInternetAndNetwork {
+		println(item)
+	}
+	println("\n*Office:")
+	for _, item := range listOffice {
+		println(item)
+	}
+	println("\n*AudioVideo:")
+	for _, item := range listAudioVideo {
+		println(item)
+	}
+	println("\n*SystemTools:")
+	for _, item := range listSystemTools {
+		println(item)
+	}
+	println("\n*Other:")
+	for _, item := range listOther {
+		println(item)
+	}*/
 
 	// USER INTERFACE
 	gtk.Init(nil)
@@ -262,7 +312,7 @@ func main() {
 	sep, _ := gtk.SeparatorNew(gtk.ORIENTATION_HORIZONTAL)
 	leftColumn.PackStart(sep, false, false, 10)
 
-	categoriesListBox := setUpCategoriesList()
+	categoriesListBox := setUpCategoriesListBox()
 	leftColumn.PackStart(categoriesListBox, false, false, 0)
 
 	searchEntry := setUpSearchEntry()

@@ -69,32 +69,100 @@ func setUpPinnedListBox() *gtk.ListBox {
 	return listBox
 }
 
-func setUpCategoriesList() *gtk.ListBox {
+func setUpCategoriesListBox() *gtk.ListBox {
 	listBox, _ := gtk.ListBoxNew()
 	for _, cat := range categories {
-		row, _ := gtk.ListBoxRowNew()
-		row.SetSelectable(false)
-		vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
-		hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 6)
-		vBox.PackStart(hBox, false, false, 2)
+		if catNotEmpty(cat.Name) {
+			row, _ := gtk.ListBoxRowNew()
+			row.SetSelectable(false)
+			vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
+			eventBox, _ := gtk.EventBoxNew()
+			hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 6)
+			eventBox.Add(hBox)
+			vBox.PackStart(eventBox, false, false, 2)
 
-		pixbuf, _ := createPixbuf(cat.Icon, *iconSizeLarge)
-		img, _ := gtk.ImageNewFromPixbuf(pixbuf)
-		hBox.PackStart(img, false, false, 0)
+			connectCategoryListBox(cat.Name, eventBox)
 
-		lbl, _ := gtk.LabelNew(cat.DisplayName)
-		hBox.PackStart(lbl, false, false, 0)
+			pixbuf, _ := createPixbuf(cat.Icon, *iconSizeLarge)
+			img, _ := gtk.ImageNewFromPixbuf(pixbuf)
+			hBox.PackStart(img, false, false, 0)
 
-		pixbuf, _ = createPixbuf("pan-end-symbolic", *iconSizeSmall)
-		img, _ = gtk.ImageNewFromPixbuf(pixbuf)
-		hBox.PackEnd(img, false, false, 0)
+			lbl, _ := gtk.LabelNew(cat.DisplayName)
+			hBox.PackStart(lbl, false, false, 0)
 
-		row.Add(vBox)
-		listBox.Add(row)
+			pixbuf, _ = createPixbuf("pan-end-symbolic", *iconSizeSmall)
+			img, _ = gtk.ImageNewFromPixbuf(pixbuf)
+			hBox.PackEnd(img, false, false, 0)
+
+			row.Add(vBox)
+			listBox.Add(row)
+		}
 	}
 	listBox.Connect("enter-notify-event", func() {
 		cancelClose()
 	})
+	return listBox
+}
+
+func catNotEmpty(catName string) bool {
+	result := catName == "utility" && len(listUtility) > 0 ||
+		catName == "development" && len(listDevelopment) > 0 ||
+		catName == "game" && len(listGame) > 0 ||
+		catName == "graphics" && len(listGraphics) > 0 ||
+		catName == "internet-and-network" && len(listInternetAndNetwork) > 0 ||
+		catName == "office" && len(listOffice) > 0 ||
+		catName == "audio-video" && len(listAudioVideo) > 0 ||
+		catName == "system-tools" && len(listSystemTools) > 0 ||
+		catName == "other" && len(listOther) > 0
+
+	return result
+}
+
+func connectCategoryListBox(catName string, eventBox *gtk.EventBox) {
+	var listCategory []string
+
+	if catName == "utility" {
+		listCategory = listUtility
+	} else if catName == "development" {
+		listCategory = listDevelopment
+	} else if catName == "game" {
+		listCategory = listGame
+	} else if catName == "graphics" {
+		listCategory = listGraphics
+	} else if catName == "internet-and-network" {
+		listCategory = listInternetAndNetwork
+	} else if catName == "office" {
+		listCategory = listOffice
+	} else if catName == "audio-video" {
+		listCategory = listAudioVideo
+	} else if catName == "system-tools" {
+		listCategory = listSystemTools
+	} else if catName == "other" {
+		listCategory = listOther
+	}
+
+	eventBox.Connect("button-release-event", func(eb *gtk.EventBox, e *gdk.Event) bool {
+		btnEvent := gdk.EventButtonNewFromEvent(e)
+		if btnEvent.Button() == 1 {
+			setUpCategoryListBox(listCategory)
+			return true
+		}
+		return false
+	})
+}
+
+func setUpCategoryListBox(listCategory []string) *gtk.ListBox {
+	listBox, _ := gtk.ListBoxNew()
+	for _, desktopID := range listCategory {
+		entry := id2entry[desktopID]
+		name := entry.NameLoc
+		if name == "" {
+			name = entry.Name
+		}
+		if !entry.NoDisplay {
+			println(entry.Icon, "|", name, "|", entry.Exec)
+		}
+	}
 	return listBox
 }
 

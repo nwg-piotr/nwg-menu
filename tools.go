@@ -332,6 +332,8 @@ func parseDesktopFiles(desktopFiles []string) {
 			terminal := false
 			noDisplay := false
 
+			categories := ""
+
 			for _, l := range lines {
 				if strings.HasPrefix(l, "[") && l != "[Desktop Entry]" {
 					break
@@ -356,6 +358,10 @@ func parseDesktopFiles(desktopFiles []string) {
 							exec = strings.Replace(exec, char, "", -1)
 						}
 					}
+					continue
+				}
+				if strings.HasPrefix(l, "Categories=") {
+					categories = strings.Split(l, "Categories=")[1]
 					continue
 				}
 				if l == "Terminal=true" {
@@ -394,12 +400,65 @@ func parseDesktopFiles(desktopFiles []string) {
 
 				id2entry[entry.DesktopID] = entry
 
+				assignToLists(entry.DesktopID, categories)
+
 			} else {
 				skipped++
 			}
 		}
 	}
 	println(fmt.Sprintf("Skipped %v duplicates; %v .desktop entries hidden by \"NoDisplay=true\"", skipped, hidden))
+}
+
+// freedesktop Main Categories list consists of 13 entries. Let's contract it to 8+1 ("Other").
+func assignToLists(desktopID, categories string) {
+	cats := strings.Split(categories, ";")
+	assigned := false
+	for _, cat := range cats {
+		if cat == "Utility" && !isIn(listUtility, desktopID) {
+			listUtility = append(listUtility, desktopID)
+			assigned = true
+			continue
+		}
+		if cat == "Development" && !isIn(listDevelopment, desktopID) {
+			listDevelopment = append(listDevelopment, desktopID)
+			assigned = true
+			continue
+		}
+		if cat == "Game" && !isIn(listGame, desktopID) {
+			listGame = append(listGame, desktopID)
+			assigned = true
+			continue
+		}
+		if cat == "Graphics" && !isIn(listGraphics, desktopID) {
+			listGraphics = append(listGraphics, desktopID)
+			assigned = true
+			continue
+		}
+		if cat == "Network" && !isIn(listInternetAndNetwork, desktopID) {
+			listInternetAndNetwork = append(listInternetAndNetwork, desktopID)
+			assigned = true
+			continue
+		}
+		if isIn([]string{"Office", "Science", "Education"}, cat) && !isIn(listOffice, desktopID) {
+			listOffice = append(listOffice, desktopID)
+			assigned = true
+			continue
+		}
+		if isIn([]string{"AudioVideo", "Audio", "Video"}, cat) && !isIn(listAudioVideo, desktopID) {
+			listAudioVideo = append(listAudioVideo, desktopID)
+			assigned = true
+			continue
+		}
+		if isIn([]string{"Settings", "System", "DesktopSettings", "PackageManager"}, cat) && !isIn(listSystemTools, desktopID) {
+			listSystemTools = append(listSystemTools, desktopID)
+			assigned = true
+			continue
+		}
+	}
+	if categories != "" && !assigned && !isIn(listOther, desktopID) {
+		listOther = append(listOther, desktopID)
+	}
 }
 
 func isIn(slice []string, val string) bool {
