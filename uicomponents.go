@@ -105,17 +105,30 @@ func setUpCategoriesListBox() *gtk.ListBox {
 }
 
 func catNotEmpty(catName string) bool {
-	result := catName == "utility" && len(listUtility) > 0 ||
-		catName == "development" && len(listDevelopment) > 0 ||
-		catName == "game" && len(listGame) > 0 ||
-		catName == "graphics" && len(listGraphics) > 0 ||
-		catName == "internet-and-network" && len(listInternetAndNetwork) > 0 ||
-		catName == "office" && len(listOffice) > 0 ||
-		catName == "audio-video" && len(listAudioVideo) > 0 ||
-		catName == "system-tools" && len(listSystemTools) > 0 ||
-		catName == "other" && len(listOther) > 0
+	result := catName == "utility" && isSupposedToShowUp(listUtility) ||
+		catName == "development" && isSupposedToShowUp(listDevelopment) ||
+		catName == "game" && isSupposedToShowUp(listGame) ||
+		catName == "graphics" && isSupposedToShowUp(listGraphics) ||
+		catName == "internet-and-network" && isSupposedToShowUp(listInternetAndNetwork) ||
+		catName == "office" && isSupposedToShowUp(listOffice) ||
+		catName == "audio-video" && isSupposedToShowUp(listAudioVideo) ||
+		catName == "system-tools" && isSupposedToShowUp(listSystemTools) ||
+		catName == "other" && isSupposedToShowUp(listOther)
 
 	return result
+}
+
+func isSupposedToShowUp(listCategory []string) bool {
+	if len(listCategory) == 0 {
+		return false
+	}
+	for _, desktopID := range listCategory {
+		entry := id2entry[desktopID]
+		if entry.NoDisplay == false {
+			return true
+		}
+	}
+	return false
 }
 
 func connectCategoryListBox(catName string, eventBox *gtk.EventBox) {
