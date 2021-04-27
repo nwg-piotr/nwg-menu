@@ -134,23 +134,24 @@ func isSupposedToShowUp(listCategory []string) bool {
 func connectCategoryListBox(catName string, eventBox *gtk.EventBox) {
 	var listCategory []string
 
-	if catName == "utility" {
+	switch catName {
+	case "utility":
 		listCategory = listUtility
-	} else if catName == "development" {
+	case "development":
 		listCategory = listDevelopment
-	} else if catName == "game" {
+	case "game":
 		listCategory = listGame
-	} else if catName == "graphics" {
+	case "graphics":
 		listCategory = listGraphics
-	} else if catName == "internet-and-network" {
+	case "internet-and-network":
 		listCategory = listInternetAndNetwork
-	} else if catName == "office" {
+	case "office":
 		listCategory = listOffice
-	} else if catName == "audio-video" {
+	case "audio-video":
 		listCategory = listAudioVideo
-	} else if catName == "system-tools" {
+	case "system-tools":
 		listCategory = listSystemTools
-	} else if catName == "other" {
+	default:
 		listCategory = listOther
 	}
 
