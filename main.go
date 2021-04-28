@@ -80,6 +80,14 @@ var (
 
 var desktopEntries []desktopEntry
 
+// UI elements
+var (
+	categoriesListBox *gtk.ListBox
+	userDirsListBox   *gtk.ListBox
+	resultWrapper     *gtk.Box
+	resultWindow      *gtk.ScrolledWindow
+)
+
 // Flags
 var cssFileName = flag.String("s", "menu-start.css", "Styling: css file name")
 var targetOutput = flag.String("o", "", "name of Output to display the menu on")
@@ -170,43 +178,6 @@ func main() {
 	println(fmt.Sprintf("Found %v desktop files", len(desktopFiles)))
 
 	parseDesktopFiles(desktopFiles)
-
-	/*println("\n*Utility:")
-	for _, item := range listUtility {
-		println(item)
-	}
-	println("\n*Development:")
-	for _, item := range listDevelopment {
-		println(item)
-	}
-	println("\n*Game:")
-	for _, item := range listGame {
-		println(item)
-	}
-	println("\n*Graphics:")
-	for _, item := range listGraphics {
-		println(item)
-	}
-	println("\n*InternetAndNetwork:")
-	for _, item := range listInternetAndNetwork {
-		println(item)
-	}
-	println("\n*Office:")
-	for _, item := range listOffice {
-		println(item)
-	}
-	println("\n*AudioVideo:")
-	for _, item := range listAudioVideo {
-		println(item)
-	}
-	println("\n*SystemTools:")
-	for _, item := range listSystemTools {
-		println(item)
-	}
-	println("\n*Other:")
-	for _, item := range listOther {
-		println(item)
-	}*/
 
 	// USER INTERFACE
 	gtk.Init(nil)
@@ -312,7 +283,7 @@ func main() {
 	sep, _ := gtk.SeparatorNew(gtk.ORIENTATION_HORIZONTAL)
 	leftColumn.PackStart(sep, false, false, 10)
 
-	categoriesListBox := setUpCategoriesListBox()
+	categoriesListBox = setUpCategoriesListBox()
 	leftColumn.PackStart(categoriesListBox, false, false, 0)
 
 	searchEntry := setUpSearchEntry()
@@ -324,8 +295,11 @@ func main() {
 	rightColumn, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 	rightBox.PackStart(rightColumn, true, true, 0)
 
-	userDirsListBox := setUpUserDirsList()
+	userDirsListBox = setUpUserDirsList()
 	rightColumn.PackStart(userDirsListBox, false, true, 10)
+
+	resultWrapper, _ = gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
+	rightColumn.PackStart(resultWrapper, true, true, 0)
 
 	buttonBox := setUpButtonBox()
 	rightColumn.PackEnd(buttonBox, false, true, 10)

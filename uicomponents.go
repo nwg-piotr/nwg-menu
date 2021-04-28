@@ -81,7 +81,7 @@ func setUpCategoriesListBox() *gtk.ListBox {
 			eventBox.Add(hBox)
 			vBox.PackStart(eventBox, false, false, 2)
 
-			connectCategoryListBox(cat.Name, eventBox)
+			connectCategoryListBox(cat.Name, eventBox, row)
 
 			pixbuf, _ := createPixbuf(cat.Icon, *iconSizeLarge)
 			img, _ := gtk.ImageNewFromPixbuf(pixbuf)
@@ -131,7 +131,7 @@ func notEmpty(listCategory []string) bool {
 	return false
 }
 
-func connectCategoryListBox(catName string, eventBox *gtk.EventBox) {
+func connectCategoryListBox(catName string, eventBox *gtk.EventBox, row *gtk.ListBoxRow) {
 	var listCategory []string
 
 	switch catName {
@@ -158,7 +158,22 @@ func connectCategoryListBox(catName string, eventBox *gtk.EventBox) {
 	eventBox.Connect("button-release-event", func(eb *gtk.EventBox, e *gdk.Event) bool {
 		btnEvent := gdk.EventButtonNewFromEvent(e)
 		if btnEvent.Button() == 1 {
-			setUpCategoryListBox(listCategory)
+			row.SetSelectable(true)
+			categoriesListBox.SelectRow(row)
+			listBox := setUpCategoryListBox(listCategory)
+			if resultWindow != nil {
+				resultWindow.Destroy()
+			}
+			resultWindow, _ = gtk.ScrolledWindowNew(nil, nil)
+			resultWindow.Connect("enter-notify-event", func() {
+				cancelClose()
+			})
+			resultWrapper.PackStart(resultWindow, true, true, 0)
+			resultWindow.Add(listBox)
+
+			userDirsListBox.Hide()
+			resultWindow.ShowAll()
+
 			return true
 		}
 		return false
@@ -167,14 +182,64 @@ func connectCategoryListBox(catName string, eventBox *gtk.EventBox) {
 
 func setUpCategoryListBox(listCategory []string) *gtk.ListBox {
 	listBox, _ := gtk.ListBoxNew()
+
+	// just button "Back"
+	row, _ := gtk.ListBoxRowNew()
+	row.SetSelectable(false)
+	vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
+	eventBox, _ := gtk.EventBoxNew()
+	hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 6)
+	eventBox.Add(hBox)
+	vBox.PackStart(eventBox, false, false, 2)
+
+	eventBox.Connect("button-release-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
+		clearSearchResult()
+		return false
+	})
+
+	pixbuf, _ := createPixbuf("arrow-left", *iconSizeLarge)
+	img, _ := gtk.ImageNewFromPixbuf(pixbuf)
+	hBox.PackEnd(img, false, false, 0)
+
+	row.Add(vBox)
+	listBox.Add(row)
+
 	for _, desktopID := range listCategory {
 		entry := id2entry[desktopID]
 		name := entry.NameLoc
 		if name == "" {
 			name = entry.Name
 		}
+		if len(name) > 30 {
+			name = fmt.Sprintf("%s...", name[:27])
+		}
 		if !entry.NoDisplay {
-			println(entry.Icon, "|", name, "|", entry.Exec)
+			row, _ := gtk.ListBoxRowNew()
+			row.SetSelectable(false)
+			vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
+			eventBox, _ := gtk.EventBoxNew()
+			hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 6)
+			eventBox.Add(hBox)
+			vBox.PackStart(eventBox, false, false, 2)
+
+			eventBox.Connect("button-release-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
+				btnEvent := gdk.EventButtonNewFromEvent(e)
+				if btnEvent.Button() == 1 {
+					launch(entry.Exec)
+					return true
+				}
+				return false
+			})
+
+			pixbuf, _ := createPixbuf(entry.Icon, *iconSizeLarge)
+			img, _ := gtk.ImageNewFromPixbuf(pixbuf)
+			hBox.PackStart(img, false, false, 0)
+
+			lbl, _ := gtk.LabelNew(name)
+			hBox.PackStart(lbl, false, false, 0)
+
+			row.Add(vBox)
+			listBox.Add(row)
 		}
 	}
 	return listBox
@@ -284,4 +349,15 @@ func setUpButtonBox() *gtk.EventBox {
 	})
 
 	return eventBox
+}
+
+func clearSearchResult() {
+	if resultWindow != nil {
+		resultWindow.Destroy()
+	}
+	if userDirsListBox != nil {
+		userDirsListBox.ShowAll()
+	}
+	categoriesListBox.GetSelectedRow().SetSelectable(false)
+	categoriesListBox.UnselectAll()
 }
