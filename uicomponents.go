@@ -24,7 +24,7 @@ func setUpPinnedListBox() *gtk.ListBox {
 			eventBox, _ := gtk.EventBoxNew()
 			hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 6)
 			eventBox.Add(hBox)
-			vBox.PackStart(eventBox, false, false, 2)
+			vBox.PackStart(eventBox, false, false, *itemPadding)
 
 			pixbuf, _ := createPixbuf(entry.Icon, *iconSizeLarge)
 			img, _ := gtk.ImageNewFromPixbuf(pixbuf)
@@ -79,7 +79,7 @@ func setUpCategoriesListBox() *gtk.ListBox {
 			eventBox, _ := gtk.EventBoxNew()
 			hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 6)
 			eventBox.Add(hBox)
-			vBox.PackStart(eventBox, false, false, 2)
+			vBox.PackStart(eventBox, false, false, *itemPadding)
 
 			connectCategoryListBox(cat.Name, eventBox, row)
 
@@ -215,7 +215,7 @@ func setUpCategoryListBox(listCategory []string) *gtk.ListBox {
 			eventBox, _ := gtk.EventBoxNew()
 			hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 6)
 			eventBox.Add(hBox)
-			vBox.PackStart(eventBox, false, false, 2)
+			vBox.PackStart(eventBox, false, false, *itemPadding)
 
 			eventBox.Connect("button-release-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
 				btnEvent := gdk.EventButtonNewFromEvent(e)
@@ -285,7 +285,7 @@ func setUpUserDirsListRow(iconName, displayName, entryName string, userDirsMap m
 	eventBox, _ := gtk.EventBoxNew()
 	hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 6)
 	eventBox.Add(hBox)
-	vBox.PackStart(eventBox, false, false, 10)
+	vBox.PackStart(eventBox, false, false, *itemPadding*3)
 
 	img, _ := gtk.ImageNewFromIconName(iconName, gtk.ICON_SIZE_BUTTON)
 	hBox.PackStart(img, false, false, 0)

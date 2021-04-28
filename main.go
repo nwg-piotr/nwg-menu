@@ -102,6 +102,7 @@ var marginRight = flag.Int("mr", 0, "Margin Right")
 var marginBottom = flag.Int("mb", 0, "Margin Bottom")
 var iconSizeLarge = flag.Int("isl", 32, "Icon Size Large")
 var iconSizeSmall = flag.Int("iss", 16, "Icon Size Small")
+var itemPadding = flag.Uint("padding", 2, "vertical item padding")
 var lang = flag.String("lang", "", "force lang, e.g. \"en\", \"pl\"")
 var fileManager = flag.String("fm", "thunar", "File Manager")
 
