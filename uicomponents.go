@@ -191,7 +191,7 @@ func setUpBackButton() *gtk.Box {
 		cancelClose()
 	})
 	button.Connect("clicked", clearSearchResult)
-	hBox.PackEnd(button, false, true, 6)
+	hBox.PackEnd(button, true, true, 0)
 
 	return hBox
 }
@@ -211,7 +211,7 @@ func setUpCategoryListBox(listCategory []string) *gtk.ListBox {
 		if !entry.NoDisplay {
 			row, _ := gtk.ListBoxRowNew()
 			row.SetSelectable(false)
-			vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
+			vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 10)
 			eventBox, _ := gtk.EventBoxNew()
 			hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 6)
 			eventBox.Add(hBox)
@@ -317,25 +317,25 @@ func setUpButtonBox() *gtk.EventBox {
 	eventBox.Add(wrapperHbox)
 
 	btn, _ := gtk.ButtonNew()
-	pixbuf, _ := createPixbuf("system-log-out-symbolic", *iconSizeLarge)
+	pixbuf, _ := createPixbuf("system-log-out", *iconSizeLarge)
 	img, _ := gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
 	box.PackStart(btn, true, true, 6)
 
 	btn, _ = gtk.ButtonNew()
-	pixbuf, _ = createPixbuf("system-lock-screen-symbolic", *iconSizeLarge)
+	pixbuf, _ = createPixbuf("system-lock-screen", *iconSizeLarge)
 	img, _ = gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
 	box.PackStart(btn, true, true, 6)
 
 	btn, _ = gtk.ButtonNew()
-	pixbuf, _ = createPixbuf("system-reboot-symbolic", *iconSizeLarge)
+	pixbuf, _ = createPixbuf("system-reboot", *iconSizeLarge)
 	img, _ = gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
 	box.PackStart(btn, true, true, 6)
 
 	btn, _ = gtk.ButtonNew()
-	pixbuf, _ = createPixbuf("system-shutdown-symbolic", *iconSizeLarge)
+	pixbuf, _ = createPixbuf("system-shutdown", *iconSizeLarge)
 	img, _ = gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
 	box.PackStart(btn, true, true, 6)
