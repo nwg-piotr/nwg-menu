@@ -86,6 +86,7 @@ var (
 	userDirsListBox   *gtk.ListBox
 	resultWrapper     *gtk.Box
 	resultWindow      *gtk.ScrolledWindow
+	backButton        *gtk.Box
 )
 
 // Flags
@@ -310,6 +311,9 @@ func main() {
 	userDirsListBox = setUpUserDirsList()
 	rightColumn.PackStart(userDirsListBox, false, true, 10)
 
+	backButton = setUpBackButton()
+	rightColumn.PackStart(backButton, false, false, 0)
+
 	resultWrapper, _ = gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 	rightColumn.PackStart(resultWrapper, true, true, 0)
 
@@ -319,6 +323,7 @@ func main() {
 	win.SetSizeRequest(0, screenHeight/2)
 
 	win.ShowAll()
+	backButton.Hide()
 
 	pinnedListBox.UnselectAll()
 	categoriesListBox.UnselectAll()

@@ -180,29 +180,24 @@ func connectCategoryListBox(catName string, eventBox *gtk.EventBox, row *gtk.Lis
 	})
 }
 
+func setUpBackButton() *gtk.Box {
+	hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
+	button, _ := gtk.ButtonNew()
+	pixbuf, _ := createPixbuf("arrow-left", *iconSizeLarge)
+	image, _ := gtk.ImageNewFromPixbuf(pixbuf)
+	button.SetImage(image)
+	button.SetAlwaysShowImage(true)
+	button.Connect("enter-notify-event", func() {
+		cancelClose()
+	})
+	button.Connect("clicked", clearSearchResult)
+	hBox.PackEnd(button, false, true, 6)
+
+	return hBox
+}
+
 func setUpCategoryListBox(listCategory []string) *gtk.ListBox {
 	listBox, _ := gtk.ListBoxNew()
-
-	// just button "Back"
-	row, _ := gtk.ListBoxRowNew()
-	row.SetSelectable(false)
-	vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
-	eventBox, _ := gtk.EventBoxNew()
-	hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 6)
-	eventBox.Add(hBox)
-	vBox.PackStart(eventBox, false, false, 2)
-
-	eventBox.Connect("button-release-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
-		clearSearchResult()
-		return false
-	})
-
-	pixbuf, _ := createPixbuf("arrow-left", *iconSizeLarge)
-	img, _ := gtk.ImageNewFromPixbuf(pixbuf)
-	hBox.PackEnd(img, false, false, 0)
-
-	row.Add(vBox)
-	listBox.Add(row)
 
 	for _, desktopID := range listCategory {
 		entry := id2entry[desktopID]
@@ -242,6 +237,7 @@ func setUpCategoryListBox(listCategory []string) *gtk.ListBox {
 			listBox.Add(row)
 		}
 	}
+	backButton.Show()
 	return listBox
 }
 
@@ -365,4 +361,5 @@ func clearSearchResult() {
 		}
 		categoriesListBox.UnselectAll()
 	}
+	backButton.Hide()
 }
