@@ -321,25 +321,25 @@ func setUpButtonBox() *gtk.EventBox {
 	eventBox.Add(wrapperHbox)
 
 	btn, _ := gtk.ButtonNew()
-	pixbuf, _ := createPixbuf("system-log-out", *iconSizeLarge)
+	pixbuf, _ := createPixbuf("system-log-out-symbolic", *iconSizeLarge)
 	img, _ := gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
 	box.PackStart(btn, true, true, 6)
 
 	btn, _ = gtk.ButtonNew()
-	pixbuf, _ = createPixbuf("system-lock-screen", *iconSizeLarge)
+	pixbuf, _ = createPixbuf("system-lock-screen-symbolic", *iconSizeLarge)
 	img, _ = gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
 	box.PackStart(btn, true, true, 6)
 
 	btn, _ = gtk.ButtonNew()
-	pixbuf, _ = createPixbuf("system-reboot", *iconSizeLarge)
+	pixbuf, _ = createPixbuf("system-reboot-symbolic", *iconSizeLarge)
 	img, _ = gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
 	box.PackStart(btn, true, true, 6)
 
 	btn, _ = gtk.ButtonNew()
-	pixbuf, _ = createPixbuf("system-shutdown", *iconSizeLarge)
+	pixbuf, _ = createPixbuf("system-shutdown-symbolic", *iconSizeLarge)
 	img, _ = gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
 	box.PackStart(btn, true, true, 6)
@@ -358,6 +358,11 @@ func clearSearchResult() {
 	if userDirsListBox != nil {
 		userDirsListBox.ShowAll()
 	}
-	categoriesListBox.GetSelectedRow().SetSelectable(false)
-	categoriesListBox.UnselectAll()
+	if categoriesListBox != nil {
+		sr := categoriesListBox.GetSelectedRow()
+		if sr != nil {
+			categoriesListBox.GetSelectedRow().SetSelectable(false)
+		}
+		categoriesListBox.UnselectAll()
+	}
 }

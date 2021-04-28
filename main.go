@@ -246,6 +246,17 @@ func main() {
 		gtk.MainQuit()
 	})
 
+	win.Connect("key-release-event", func(window *gtk.Window, event *gdk.Event) {
+		key := &gdk.EventKey{Event: event}
+		if key.KeyVal() == gdk.KEY_Escape {
+			if resultWindow.IsVisible() {
+				clearSearchResult()
+			} else {
+				gtk.MainQuit()
+			}
+		}
+	})
+
 	// Close the window on leave, but not immediately, to avoid accidental closes
 	win.Connect("leave-notify-event", func() {
 		if *autohide {
