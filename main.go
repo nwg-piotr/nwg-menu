@@ -56,13 +56,15 @@ type category struct {
 var categories []category
 
 type desktopEntry struct {
-	DesktopID string
-	Name      string
-	NameLoc   string
-	Icon      string
-	Exec      string
-	Terminal  bool
-	NoDisplay bool
+	DesktopID  string
+	Name       string
+	NameLoc    string
+	Comment    string
+	CommentLoc string
+	Icon       string
+	Exec       string
+	Terminal   bool
+	NoDisplay  bool
 }
 
 // slices below will hold DesktopID strings
@@ -87,6 +89,7 @@ var (
 	resultWrapper     *gtk.Box
 	resultWindow      *gtk.ScrolledWindow
 	backButton        *gtk.Box
+	searchEntry       *gtk.SearchEntry
 )
 
 // Flags
@@ -248,11 +251,13 @@ func main() {
 		gtk.MainQuit()
 	})
 
-	win.Connect("key-release-event", func(window *gtk.Window, event *gdk.Event) {
+	win.Connect("key-press-event", func(window *gtk.Window, event *gdk.Event) {
 		key := &gdk.EventKey{Event: event}
 		if key.KeyVal() == gdk.KEY_Escape {
 			if resultWindow.IsVisible() {
 				clearSearchResult()
+				searchEntry.GrabFocus()
+				searchEntry.SetText("")
 			} else {
 				gtk.MainQuit()
 			}
@@ -300,7 +305,7 @@ func main() {
 	categoriesListBox = setUpCategoriesListBox()
 	leftColumn.PackStart(categoriesListBox, false, false, 0)
 
-	searchEntry := setUpSearchEntry()
+	searchEntry = setUpSearchEntry()
 	leftColumn.PackEnd(searchEntry, false, false, 6)
 
 	rightBox, _ = gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)

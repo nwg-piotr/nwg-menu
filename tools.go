@@ -327,6 +327,8 @@ func parseDesktopFiles(desktopFiles []string) {
 			desktopID := parts[len(parts)-1]
 			name := ""
 			nameLoc := ""
+			comment := ""
+			commentLoc := ""
 			icon := ""
 			exec := ""
 			terminal := false
@@ -344,6 +346,14 @@ func parseDesktopFiles(desktopFiles []string) {
 				}
 				if strings.HasPrefix(l, fmt.Sprintf("Name[%s]=", strings.Split(*lang, "_")[0])) {
 					nameLoc = strings.Split(l, "=")[1]
+					continue
+				}
+				if strings.HasPrefix(l, "Comment=") {
+					comment = strings.Split(l, "=")[1]
+					continue
+				}
+				if strings.HasPrefix(l, fmt.Sprintf("Comment[%s]=", strings.Split(*lang, "_")[0])) {
+					commentLoc = strings.Split(l, "=")[1]
 					continue
 				}
 				if strings.HasPrefix(l, "Icon=") {
@@ -377,12 +387,10 @@ func parseDesktopFiles(desktopFiles []string) {
 
 			// if name[ln] not found, let's try to find name[ln_LN]
 			if nameLoc == "" {
-				for _, l := range lines {
-					if strings.HasPrefix(l, fmt.Sprintf("Name[%s]=", *lang)) {
-						nameLoc = strings.Split(l, "=")[1]
-						break
-					}
-				}
+				nameLoc = name
+			}
+			if commentLoc == "" {
+				commentLoc = comment
 			}
 
 			if !isIn(added, desktopID) {
@@ -392,6 +400,8 @@ func parseDesktopFiles(desktopFiles []string) {
 				entry.DesktopID = desktopID
 				entry.Name = name
 				entry.NameLoc = nameLoc
+				entry.Comment = comment
+				entry.CommentLoc = commentLoc
 				entry.Icon = icon
 				entry.Exec = exec
 				entry.Terminal = terminal

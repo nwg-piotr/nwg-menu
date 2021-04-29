@@ -190,7 +190,11 @@ func setUpBackButton() *gtk.Box {
 	button.Connect("enter-notify-event", func() {
 		cancelClose()
 	})
-	button.Connect("clicked", clearSearchResult)
+	button.Connect("clicked", func(btn *gtk.Button) {
+		clearSearchResult()
+		searchEntry.GrabFocus()
+		searchEntry.SetText("")
+	})
 	hBox.PackEnd(button, true, true, 0)
 
 	return hBox
@@ -241,10 +245,83 @@ func setUpCategoryListBox(listCategory []string) *gtk.ListBox {
 	return listBox
 }
 
+func setUpCategorySearchResult(searchPhrase string) *gtk.ListBox {
+	listBox, _ := gtk.ListBoxNew()
+
+	for _, entry := range desktopEntries {
+		if !entry.NoDisplay && (strings.Contains(strings.ToLower(entry.NameLoc), strings.ToLower(searchPhrase)) ||
+			strings.Contains(strings.ToLower(entry.CommentLoc), strings.ToLower(searchPhrase)) ||
+			strings.Contains(strings.ToLower(entry.Comment), strings.ToLower(searchPhrase))) {
+			if resultWindow != nil {
+				resultWindow.Destroy()
+			}
+			resultWindow, _ = gtk.ScrolledWindowNew(nil, nil)
+			resultWindow.Connect("enter-notify-event", func() {
+				cancelClose()
+			})
+			resultWrapper.PackStart(resultWindow, true, true, 0)
+
+			row, _ := gtk.ListBoxRowNew()
+			row.SetSelectable(false)
+			vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 10)
+			eventBox, _ := gtk.EventBoxNew()
+			hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 6)
+			eventBox.Add(hBox)
+			vBox.PackStart(eventBox, false, false, *itemPadding)
+
+			exec := entry.Exec
+			row.Connect("activate", func() {
+				launch(exec)
+			})
+			eventBox.Connect("button-release-event", func(row *gtk.EventBox, e *gdk.Event) bool {
+				btnEvent := gdk.EventButtonNewFromEvent(e)
+				if btnEvent.Button() == 1 {
+					launch(exec)
+					return true
+				}
+				return false
+			})
+
+			pixbuf, _ := createPixbuf(entry.Icon, *iconSizeLarge)
+			img, _ := gtk.ImageNewFromPixbuf(pixbuf)
+			hBox.PackStart(img, false, false, 0)
+
+			lbl, _ := gtk.LabelNew(entry.NameLoc)
+			hBox.PackStart(lbl, false, false, 0)
+
+			row.Add(vBox)
+			listBox.Add(row)
+
+			resultWindow.Add(listBox)
+			resultWindow.ShowAll()
+
+		}
+	}
+	return listBox
+}
+
 func setUpSearchEntry() *gtk.SearchEntry {
 	searchEntry, _ := gtk.SearchEntryNew()
 	searchEntry.Connect("enter-notify-event", func() {
 		cancelClose()
+	})
+	searchEntry.Connect("search-changed", func() {
+		phrase, _ := searchEntry.GetText()
+		if len(phrase) > 1 {
+			userDirsListBox.Hide()
+			backButton.Show()
+			if resultWindow != nil {
+				resultWindow.Destroy()
+			}
+			setUpCategorySearchResult(phrase)
+
+		} else if len(phrase) <= 1 {
+			clearSearchResult()
+			userDirsListBox.ShowAll()
+		}
+	})
+	searchEntry.Connect("focus-in-event", func() {
+		searchEntry.SetText("")
 	})
 
 	return searchEntry
@@ -362,4 +439,6 @@ func clearSearchResult() {
 		categoriesListBox.UnselectAll()
 	}
 	backButton.Hide()
+	//searchEntry.SetText("")
+	//searchEntry.GrabFocus()
 }
