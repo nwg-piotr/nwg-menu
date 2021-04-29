@@ -18,6 +18,7 @@ func setUpPinnedListBox() *gtk.ListBox {
 
 			row, _ := gtk.ListBoxRowNew()
 			row.SetSelectable(false)
+			row.SetCanFocus(false)
 			vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 
 			// We need gtk.EventBox to detect mouse event
@@ -74,6 +75,7 @@ func setUpCategoriesListBox() *gtk.ListBox {
 	for _, cat := range categories {
 		if isSupposedToShowUp(cat.Name) {
 			row, _ := gtk.ListBoxRowNew()
+			row.SetCanFocus(false)
 			row.SetSelectable(false)
 			vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 			eventBox, _ := gtk.EventBoxNew()
@@ -159,6 +161,7 @@ func connectCategoryListBox(catName string, eventBox *gtk.EventBox, row *gtk.Lis
 		btnEvent := gdk.EventButtonNewFromEvent(e)
 		if btnEvent.Button() == 1 {
 			row.SetSelectable(true)
+			row.SetCanFocus(false)
 			categoriesListBox.SelectRow(row)
 			listBox := setUpCategoryListBox(listCategory)
 			if resultWindow != nil {
@@ -181,8 +184,11 @@ func connectCategoryListBox(catName string, eventBox *gtk.EventBox, row *gtk.Lis
 }
 
 func setUpBackButton() *gtk.Box {
+	vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 10)
 	hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
+	vBox.PackStart(hBox, false, false, 0)
 	button, _ := gtk.ButtonNew()
+	button.SetCanFocus(false)
 	pixbuf, _ := createPixbuf("arrow-left", *iconSizeLarge)
 	image, _ := gtk.ImageNewFromPixbuf(pixbuf)
 	button.SetImage(image)
@@ -195,9 +201,13 @@ func setUpBackButton() *gtk.Box {
 		searchEntry.GrabFocus()
 		searchEntry.SetText("")
 	})
-	hBox.PackEnd(button, true, true, 0)
+	hBox.PackEnd(button, false, true, 0)
 
-	return hBox
+	sep, _ := gtk.SeparatorNew(gtk.ORIENTATION_HORIZONTAL)
+	sep.SetCanFocus(false)
+	vBox.Add(sep)
+
+	return vBox
 }
 
 func setUpCategoryListBox(listCategory []string) *gtk.ListBox {
@@ -366,6 +376,7 @@ func setUpUserDirsListRow(iconName, displayName, entryName string, userDirsMap m
 		displayName = parts[(len(parts) - 1)]
 	}
 	row, _ := gtk.ListBoxRowNew()
+	row.SetCanFocus(false)
 	row.SetSelectable(false)
 	vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 	eventBox, _ := gtk.EventBoxNew()
@@ -406,24 +417,28 @@ func setUpButtonBox() *gtk.EventBox {
 	pixbuf, _ := createPixbuf("system-log-out", *iconSizeLarge)
 	img, _ := gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
+	btn.SetCanFocus(false)
 	box.PackStart(btn, true, true, 6)
 
 	btn, _ = gtk.ButtonNew()
 	pixbuf, _ = createPixbuf("system-lock-screen", *iconSizeLarge)
 	img, _ = gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
+	btn.SetCanFocus(false)
 	box.PackStart(btn, true, true, 6)
 
 	btn, _ = gtk.ButtonNew()
 	pixbuf, _ = createPixbuf("system-reboot", *iconSizeLarge)
 	img, _ = gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
+	btn.SetCanFocus(false)
 	box.PackStart(btn, true, true, 6)
 
 	btn, _ = gtk.ButtonNew()
 	pixbuf, _ = createPixbuf("system-shutdown", *iconSizeLarge)
 	img, _ = gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
+	btn.SetCanFocus(false)
 	box.PackStart(btn, true, true, 6)
 
 	eventBox.Connect("enter-notify-event", func() {
