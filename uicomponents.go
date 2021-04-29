@@ -248,10 +248,19 @@ func setUpCategoryListBox(listCategory []string) *gtk.ListBox {
 func setUpCategorySearchResult(searchPhrase string) *gtk.ListBox {
 	listBox, _ := gtk.ListBoxNew()
 
+	counter := 0
 	for _, entry := range desktopEntries {
+		if len(searchPhrase) == 1 && counter > 9 {
+			break
+		} else if len(searchPhrase) == 2 && counter > 14 {
+			break
+		}
 		if !entry.NoDisplay && (strings.Contains(strings.ToLower(entry.NameLoc), strings.ToLower(searchPhrase)) ||
 			strings.Contains(strings.ToLower(entry.CommentLoc), strings.ToLower(searchPhrase)) ||
 			strings.Contains(strings.ToLower(entry.Comment), strings.ToLower(searchPhrase))) {
+
+			counter++
+
 			if resultWindow != nil {
 				resultWindow.Destroy()
 			}
@@ -307,7 +316,7 @@ func setUpSearchEntry() *gtk.SearchEntry {
 	})
 	searchEntry.Connect("search-changed", func() {
 		phrase, _ := searchEntry.GetText()
-		if len(phrase) > 1 {
+		if len(phrase) > 0 {
 			userDirsListBox.Hide()
 			backButton.Show()
 			if resultWindow != nil {
@@ -315,7 +324,7 @@ func setUpSearchEntry() *gtk.SearchEntry {
 			}
 			setUpCategorySearchResult(phrase)
 
-		} else if len(phrase) <= 1 {
+		} else {
 			clearSearchResult()
 			userDirsListBox.ShowAll()
 		}
