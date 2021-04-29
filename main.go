@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/allan-simon/go-singleinstance"
 	"github.com/dlasky/gotk3-layershell/layershell"
@@ -110,6 +111,7 @@ var lang = flag.String("lang", "", "force lang, e.g. \"en\", \"pl\"")
 var fileManager = flag.String("fm", "thunar", "File Manager")
 
 func main() {
+	timeStart := time.Now()
 	flag.Parse()
 
 	if *displayVersion {
@@ -173,11 +175,6 @@ func main() {
 	appDirs = getAppDirs()
 
 	setUpCategories()
-	print("Categories: ")
-	for _, cat := range categories {
-		print(fmt.Sprintf("%s (%s) ", cat.DisplayName, cat.Name))
-	}
-	println()
 
 	desktopFiles := listDesktopFiles()
 	println(fmt.Sprintf("Found %v desktop files", len(desktopFiles)))
@@ -194,7 +191,7 @@ func main() {
 		println(fmt.Sprintf("ERROR: %s css file not found or erroneous. Using GTK styling.", cssFile))
 		println(fmt.Sprintf(">>> %s", err))
 	} else {
-		println(fmt.Sprintf("Using style from %s\n", cssFile))
+		println(fmt.Sprintf("Using style from %s", cssFile))
 		screen, _ := gdk.ScreenGetDefault()
 		gtk.AddProviderForScreen(screen, cssProvider, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 	}
@@ -251,10 +248,10 @@ func main() {
 		gtk.MainQuit()
 	})
 
-	win.Connect("key-press-event", func(window *gtk.Window, event *gdk.Event) {
+	win.Connect("key-release-event", func(window *gtk.Window, event *gdk.Event) {
 		key := &gdk.EventKey{Event: event}
 		if key.KeyVal() == gdk.KEY_Escape {
-			if resultWindow.IsVisible() {
+			if resultWindow != nil && resultWindow.IsVisible() {
 				clearSearchResult()
 				searchEntry.GrabFocus()
 				searchEntry.SetText("")
@@ -334,6 +331,7 @@ func main() {
 	pinnedListBox.UnselectAll()
 	categoriesListBox.UnselectAll()
 	searchEntry.GrabFocus()
-
+	t := time.Now()
+	println(fmt.Sprintf("UI created in %v ms. Thanks for watching.", t.Sub(timeStart).Milliseconds()))
 	gtk.Main()
 }

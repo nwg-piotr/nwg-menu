@@ -12,7 +12,7 @@ func setUpPinnedListBox() *gtk.ListBox {
 	listBox, _ := gtk.ListBoxNew()
 	lines, err := loadTextFile(pinnedFile)
 	if err == nil {
-		println(fmt.Sprintf("Loaded %v pinned items", len(pinnedFile)))
+		println(fmt.Sprintf("Loaded %v pinned items", len(lines)))
 		for _, l := range lines {
 			entry := id2entry[l]
 
