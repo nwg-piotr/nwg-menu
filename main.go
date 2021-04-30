@@ -257,7 +257,8 @@ func main() {
 	win.Connect("key-release-event", func(window *gtk.Window, event *gdk.Event) {
 		key := &gdk.EventKey{Event: event}
 		if key.KeyVal() == gdk.KEY_Escape {
-			if resultWindow != nil && resultWindow.IsVisible() {
+			s, _ := searchEntry.GetText()
+			if s != "" {
 				clearSearchResult()
 				searchEntry.GrabFocus()
 				searchEntry.SetText("")
@@ -271,8 +272,6 @@ func main() {
 	win.Connect("leave-notify-event", func() {
 		if *autohide {
 			src, err = glib.TimeoutAdd(uint(1000), func() bool {
-				/*win.Hide()
-				src = 0*/
 				gtk.MainQuit()
 				return false
 			})
@@ -329,7 +328,7 @@ func main() {
 	buttonBox := setUpButtonBox()
 	rightColumn.PackEnd(buttonBox, false, true, 10)
 
-	win.SetSizeRequest(0, screenHeight/2)
+	win.SetSizeRequest(screenHeight*6/10, screenHeight*6/10)
 
 	win.ShowAll()
 	backButton.Hide()
