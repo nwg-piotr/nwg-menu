@@ -374,6 +374,9 @@ func setUpSearchEntry() *gtk.SearchEntry {
 				for key := range userDirsMap {
 					if key != "home" {
 						fileSearchResults = make(map[string]string)
+						if len(fileSearchResults) == 0 {
+							fileSearchResultListBox.Show()
+						}
 						filepath.WalkDir(userDirsMap[key], walk)
 						searchUserDir(key)
 					}
