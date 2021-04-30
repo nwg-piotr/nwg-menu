@@ -101,11 +101,11 @@ var (
 
 // Flags
 var cssFileName = flag.String("s", "menu-start.css", "Styling: css file name")
-var targetOutput = flag.String("o", "", "name of Output to display the menu on")
+var targetOutput = flag.String("o", "", "name of the Output to display the menu on")
 var displayVersion = flag.Bool("v", false, "display Version information")
 var autohide = flag.Bool("d", false, "auto-hiDe: close window when left")
-var position = flag.String("p", "bottom", "Position: \"bottom\" or \"top\"")
-var alignment = flag.String("a", "left", "Alignment: \"left\" or \"right\"")
+var valign = flag.String("va", "bottom", "Vertical Alignment: \"bottom\" or \"top\"")
+var halign = flag.String("ha", "left", "Horizontal Alignment: \"left\" or \"right\"")
 var marginTop = flag.Int("mt", 0, "Margin Top")
 var marginLeft = flag.Int("ml", 0, "Margin Left")
 var marginRight = flag.Int("mr", 0, "Margin Right")
@@ -115,6 +115,7 @@ var iconSizeSmall = flag.Int("iss", 16, "Icon Size Small")
 var itemPadding = flag.Uint("padding", 2, "vertical item padding")
 var lang = flag.String("lang", "", "force lang, e.g. \"en\", \"pl\"")
 var fileManager = flag.String("fm", "thunar", "File Manager")
+var terminal = flag.String("term", "alacritty", "Terminal emulator")
 
 func main() {
 	timeStart := time.Now()
@@ -229,13 +230,13 @@ func main() {
 		}
 	}
 
-	if *position == "bottom" {
+	if *valign == "bottom" {
 		layershell.SetAnchor(win, layershell.LAYER_SHELL_EDGE_BOTTOM, true)
 	} else {
 		layershell.SetAnchor(win, layershell.LAYER_SHELL_EDGE_TOP, true)
 	}
 
-	if *alignment == "left" {
+	if *halign == "left" {
 		layershell.SetAnchor(win, layershell.LAYER_SHELL_EDGE_LEFT, true)
 	} else {
 		layershell.SetAnchor(win, layershell.LAYER_SHELL_EDGE_RIGHT, true)
