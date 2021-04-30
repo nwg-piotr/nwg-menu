@@ -85,12 +85,18 @@ var desktopEntries []desktopEntry
 
 // UI elements
 var (
-	categoriesListBox *gtk.ListBox
-	userDirsListBox   *gtk.ListBox
-	resultWrapper     *gtk.Box
-	resultWindow      *gtk.ScrolledWindow
-	backButton        *gtk.Box
-	searchEntry       *gtk.SearchEntry
+	categoriesListBox       *gtk.ListBox
+	userDirsListBox         *gtk.ListBox
+	resultWrapper           *gtk.Box
+	resultWindow            *gtk.ScrolledWindow
+	fileSearchResults       map[string]string
+	fileSearchResultWindow  *gtk.ScrolledWindow
+	backButton              *gtk.Box
+	searchEntry             *gtk.SearchEntry
+	phrase                  string
+	resultListBox           *gtk.ListBox
+	fileSearchResultListBox *gtk.ListBox
+	userDirsMap             map[string]string
 )
 
 // Flags

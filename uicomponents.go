@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"io/fs"
+	"path/filepath"
 	"strings"
 
 	"github.com/gotk3/gotk3/gdk"
@@ -319,20 +321,64 @@ func setUpCategorySearchResult(searchPhrase string) *gtk.ListBox {
 	return listBox
 }
 
+func setUpFileSearchResultListBox() *gtk.ListBox {
+	listBox, _ := gtk.ListBoxNew()
+	if fileSearchResultWindow != nil {
+		fileSearchResultWindow.Destroy()
+	}
+	fileSearchResultWindow, _ = gtk.ScrolledWindowNew(nil, nil)
+	fileSearchResultWindow.Connect("enter-notify-event", func() {
+		cancelClose()
+	})
+	resultWrapper.PackStart(fileSearchResultWindow, true, true, 0)
+
+	fileSearchResultWindow.Add(listBox)
+	fileSearchResultWindow.ShowAll()
+
+	return listBox
+}
+
+func walk(path string, d fs.DirEntry, e error) error {
+	if e != nil {
+		return e
+	}
+	if !d.IsDir() {
+		parts := strings.Split(path, "/")
+		fileName := parts[len(parts)-1]
+		if strings.Contains(strings.ToLower(fileName), strings.ToLower(phrase)) {
+			fileSearchResults[fileName] = path
+		}
+	}
+	return nil
+}
+
 func setUpSearchEntry() *gtk.SearchEntry {
 	searchEntry, _ := gtk.SearchEntryNew()
 	searchEntry.Connect("enter-notify-event", func() {
 		cancelClose()
 	})
 	searchEntry.Connect("search-changed", func() {
-		phrase, _ := searchEntry.GetText()
+		phrase, _ = searchEntry.GetText()
 		if len(phrase) > 0 {
 			userDirsListBox.Hide()
 			backButton.Show()
 			if resultWindow != nil {
 				resultWindow.Destroy()
 			}
-			setUpCategorySearchResult(phrase)
+			resultListBox = setUpCategorySearchResult(phrase)
+			if fileSearchResultWindow != nil {
+				fileSearchResultWindow.Destroy()
+			}
+			if len(phrase) > 2 {
+				fileSearchResultListBox = setUpFileSearchResultListBox()
+				for key := range userDirsMap {
+					if key != "home" {
+						fileSearchResults = make(map[string]string)
+						filepath.WalkDir(userDirsMap[key], walk)
+						searchUserDir(key)
+					}
+				}
+			}
 
 		} else {
 			clearSearchResult()
@@ -346,9 +392,25 @@ func setUpSearchEntry() *gtk.SearchEntry {
 	return searchEntry
 }
 
+func searchUserDir(dir string) {
+	fileSearchResults = make(map[string]string)
+	filepath.WalkDir(userDirsMap[dir], walk)
+	if len(fileSearchResults) > 0 {
+		row := setUpUserDirsListRow(fmt.Sprintf("folder-%s-symbolic", dir), "", dir, userDirsMap)
+		fileSearchResultListBox.Add(row)
+		fileSearchResultListBox.ShowAll()
+
+		for fileName, path := range fileSearchResults {
+			row := setUpUserFileSearchResultRow(fileName, path)
+			fileSearchResultListBox.Add(row)
+		}
+		fileSearchResultListBox.ShowAll()
+	}
+}
+
 func setUpUserDirsList() *gtk.ListBox {
 	listBox, _ := gtk.ListBoxNew()
-	userDirsMap := mapXdgUserDirs()
+	userDirsMap = mapXdgUserDirs()
 
 	row := setUpUserDirsListRow("folder-home-symbolic", "Home", "home", userDirsMap)
 	listBox.Add(row)
@@ -406,6 +468,39 @@ func setUpUserDirsListRow(iconName, displayName, entryName string, userDirsMap m
 	return row
 }
 
+func setUpUserFileSearchResultRow(fileName, filePath string) *gtk.ListBoxRow {
+	row, _ := gtk.ListBoxRowNew()
+	row.SetCanFocus(false)
+	row.SetSelectable(false)
+	vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
+	eventBox, _ := gtk.EventBoxNew()
+	hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
+	eventBox.Add(hBox)
+	vBox.PackStart(eventBox, false, false, *itemPadding)
+
+	if len(fileName) > 37 {
+		fileName = fmt.Sprintf("%s...", fileName[:35])
+	}
+	lbl, _ := gtk.LabelNew(fileName)
+	hBox.PackStart(lbl, false, false, 0)
+	row.Add(vBox)
+
+	row.Connect("activate", func() {
+		launch(fmt.Sprintf("%s %s", *fileManager, filePath))
+	})
+
+	eventBox.Connect("button-release-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
+		btnEvent := gdk.EventButtonNewFromEvent(e)
+		if btnEvent.Button() == 1 {
+			launch(fmt.Sprintf("%s %s", *fileManager, filePath))
+			return true
+		}
+		return false
+	})
+
+	return row
+}
+
 func setUpButtonBox() *gtk.EventBox {
 	eventBox, _ := gtk.EventBoxNew()
 	wrapperHbox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
@@ -451,6 +546,9 @@ func setUpButtonBox() *gtk.EventBox {
 func clearSearchResult() {
 	if resultWindow != nil {
 		resultWindow.Destroy()
+	}
+	if fileSearchResultWindow != nil {
+		fileSearchResultWindow.Destroy()
 	}
 	if userDirsListBox != nil {
 		userDirsListBox.ShowAll()
