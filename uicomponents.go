@@ -162,6 +162,8 @@ func connectCategoryListBox(catName string, eventBox *gtk.EventBox, row *gtk.Lis
 	eventBox.Connect("button-release-event", func(eb *gtk.EventBox, e *gdk.Event) bool {
 		btnEvent := gdk.EventButtonNewFromEvent(e)
 		if btnEvent.Button() == 1 {
+			searchEntry.SetText("")
+			clearSearchResult()
 			row.SetSelectable(true)
 			row.SetCanFocus(false)
 			categoriesListBox.SelectRow(row)
@@ -260,6 +262,12 @@ func setUpCategoryListBox(listCategory []string) *gtk.ListBox {
 func setUpCategorySearchResult(searchPhrase string) *gtk.ListBox {
 	listBox, _ := gtk.ListBoxNew()
 
+	resultWindow, _ = gtk.ScrolledWindowNew(nil, nil)
+	resultWindow.Connect("enter-notify-event", func() {
+		cancelClose()
+	})
+	resultWrapper.PackStart(resultWindow, true, true, 0)
+
 	counter := 0
 	for _, entry := range desktopEntries {
 		if len(searchPhrase) == 1 && counter > 9 {
@@ -272,15 +280,6 @@ func setUpCategorySearchResult(searchPhrase string) *gtk.ListBox {
 			strings.Contains(strings.ToLower(entry.Comment), strings.ToLower(searchPhrase))) {
 
 			counter++
-
-			if resultWindow != nil {
-				resultWindow.Destroy()
-			}
-			resultWindow, _ = gtk.ScrolledWindowNew(nil, nil)
-			resultWindow.Connect("enter-notify-event", func() {
-				cancelClose()
-			})
-			resultWrapper.PackStart(resultWindow, true, true, 0)
 
 			row, _ := gtk.ListBoxRowNew()
 			row.SetSelectable(false)
@@ -314,15 +313,14 @@ func setUpCategorySearchResult(searchPhrase string) *gtk.ListBox {
 			row.Add(vBox)
 			listBox.Add(row)
 
-			resultWindow.Add(listBox)
-			resultWindow.ShowAll()
-
 		}
 	}
+	resultWindow.Add(listBox)
+	resultWindow.ShowAll()
 	return listBox
 }
 
-func setUpFileSearchResultListBox() *gtk.ListBox {
+func setUpFileSearchResult() *gtk.ListBox {
 	listBox, _ := gtk.ListBoxNew()
 	if fileSearchResultWindow != nil {
 		fileSearchResultWindow.Destroy()
@@ -363,15 +361,20 @@ func setUpSearchEntry() *gtk.SearchEntry {
 		if len(phrase) > 0 {
 			userDirsListBox.Hide()
 			backButton.Show()
+
 			if resultWindow != nil {
 				resultWindow.Destroy()
 			}
 			resultListBox = setUpCategorySearchResult(phrase)
-			if fileSearchResultWindow != nil {
-				fileSearchResultWindow.Destroy()
+			if resultListBox.GetChildren().Length() == 0 {
+				resultWindow.Hide()
 			}
+
 			if len(phrase) > 2 {
-				fileSearchResultListBox = setUpFileSearchResultListBox()
+				if fileSearchResultWindow != nil {
+					fileSearchResultWindow.Destroy()
+				}
+				fileSearchResultListBox = setUpFileSearchResult()
 				for key := range userDirsMap {
 					if key != "home" {
 						fileSearchResults = make(map[string]string)
@@ -381,6 +384,13 @@ func setUpSearchEntry() *gtk.SearchEntry {
 						filepath.WalkDir(userDirsMap[key], walk)
 						searchUserDir(key)
 					}
+				}
+				if fileSearchResultListBox.GetChildren().Length() == 0 {
+					fileSearchResultWindow.Hide()
+				}
+			} else {
+				if fileSearchResultWindow != nil {
+					fileSearchResultWindow.Destroy()
 				}
 			}
 

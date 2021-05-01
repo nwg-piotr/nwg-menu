@@ -264,7 +264,11 @@ func main() {
 				searchEntry.GrabFocus()
 				searchEntry.SetText("")
 			} else {
-				gtk.MainQuit()
+				if resultWindow == nil || !resultWindow.GetVisible() {
+					gtk.MainQuit()
+				} else {
+					clearSearchResult()
+				}
 			}
 		}
 	})
@@ -299,6 +303,11 @@ func main() {
 	leftColumn, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 	leftBox.PackStart(leftColumn, true, true, 0)
 
+	searchEntry = setUpSearchEntry()
+	if *valign == "top" {
+		leftColumn.PackStart(searchEntry, false, false, 6)
+	}
+
 	pinnedListBox := setUpPinnedListBox()
 	leftColumn.PackStart(pinnedListBox, false, false, 0)
 
@@ -308,8 +317,9 @@ func main() {
 	categoriesListBox = setUpCategoriesListBox()
 	leftColumn.PackStart(categoriesListBox, false, false, 0)
 
-	searchEntry = setUpSearchEntry()
-	leftColumn.PackEnd(searchEntry, false, false, 6)
+	if *valign != "top" {
+		leftColumn.PackEnd(searchEntry, false, false, 6)
+	}
 
 	rightBox, _ = gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
 	alignmentBox.PackStart(rightBox, true, true, 10)
@@ -332,6 +342,7 @@ func main() {
 	win.SetSizeRequest(screenHeight*6/10, screenHeight*6/10)
 
 	win.ShowAll()
+
 	backButton.Hide()
 
 	pinnedListBox.UnselectAll()
