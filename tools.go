@@ -553,7 +553,7 @@ func savePinned() {
 	}
 }
 
-func launch(command string) {
+func launch(command string, terminal bool) {
 	// trim % and everything afterwards
 	if strings.Contains(command, "%") {
 		cutAt := strings.Index(command, "%")
@@ -582,6 +582,10 @@ func launch(command string) {
 	}
 
 	cmd := exec.Command(elements[cmdIdx], elements[1+cmdIdx:]...)
+	if terminal {
+		args := []string{"-e", elements[cmdIdx]}
+		cmd = exec.Command(*term, args...)
+	}
 
 	// set env variables
 	if len(envVars) > 0 {

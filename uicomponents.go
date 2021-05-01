@@ -45,13 +45,13 @@ func setUpPinnedListBox() *gtk.ListBox {
 			row.Add(vBox)
 
 			row.Connect("activate", func() {
-				launch(entry.Exec)
+				launch(entry.Exec, entry.Terminal)
 			})
 
 			eventBox.Connect("button-release-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
 				btnEvent := gdk.EventButtonNewFromEvent(e)
 				if btnEvent.Button() == 1 {
-					launch(entry.Exec)
+					launch(entry.Exec, entry.Terminal)
 					return true
 				} else if btnEvent.Button() == 3 {
 					println("Unpin ", entry.DesktopID)
@@ -236,7 +236,7 @@ func setUpCategoryListBox(listCategory []string) *gtk.ListBox {
 			eventBox.Connect("button-release-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
 				btnEvent := gdk.EventButtonNewFromEvent(e)
 				if btnEvent.Button() == 1 {
-					launch(entry.Exec)
+					launch(entry.Exec, entry.Terminal)
 					return true
 				}
 				return false
@@ -291,13 +291,14 @@ func setUpCategorySearchResult(searchPhrase string) *gtk.ListBox {
 			vBox.PackStart(eventBox, false, false, *itemPadding)
 
 			exec := entry.Exec
+			term := entry.Terminal
 			row.Connect("activate", func() {
-				launch(exec)
+				launch(exec, term)
 			})
 			eventBox.Connect("button-release-event", func(row *gtk.EventBox, e *gdk.Event) bool {
 				btnEvent := gdk.EventButtonNewFromEvent(e)
 				if btnEvent.Button() == 1 {
-					launch(exec)
+					launch(exec, term)
 					return true
 				}
 				return false
@@ -456,13 +457,13 @@ func setUpUserDirsListRow(iconName, displayName, entryName string, userDirsMap m
 	row.Add(vBox)
 
 	row.Connect("activate", func() {
-		launch(fmt.Sprintf("%s %s", *fileManager, userDirsMap[entryName]))
+		launch(fmt.Sprintf("%s %s", *fileManager, userDirsMap[entryName]), false)
 	})
 
 	eventBox.Connect("button-release-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
 		btnEvent := gdk.EventButtonNewFromEvent(e)
 		if btnEvent.Button() == 1 {
-			launch(fmt.Sprintf("%s %s", *fileManager, userDirsMap[entryName]))
+			launch(fmt.Sprintf("%s %s", *fileManager, userDirsMap[entryName]), false)
 			return true
 		}
 		return false
@@ -489,13 +490,13 @@ func setUpUserFileSearchResultRow(fileName, filePath string) *gtk.ListBoxRow {
 	row.Add(vBox)
 
 	row.Connect("activate", func() {
-		launch(fmt.Sprintf("%s %s", *fileManager, filePath))
+		launch(fmt.Sprintf("%s %s", *fileManager, filePath), false)
 	})
 
 	eventBox.Connect("button-release-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
 		btnEvent := gdk.EventButtonNewFromEvent(e)
 		if btnEvent.Button() == 1 {
-			launch(fmt.Sprintf("%s %s", *fileManager, filePath))
+			launch(fmt.Sprintf("%s %s", *fileManager, filePath), false)
 			return true
 		}
 		return false

@@ -115,7 +115,7 @@ var iconSizeSmall = flag.Int("iss", 16, "Icon Size Small")
 var itemPadding = flag.Uint("padding", 2, "vertical item padding")
 var lang = flag.String("lang", "", "force lang, e.g. \"en\", \"pl\"")
 var fileManager = flag.String("fm", "thunar", "File Manager")
-var terminal = flag.String("term", "alacritty", "Terminal emulator")
+var term = flag.String("term", "alacritty", "Terminal emulator")
 
 func main() {
 	timeStart := time.Now()
