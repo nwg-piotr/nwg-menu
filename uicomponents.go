@@ -528,6 +528,9 @@ func setUpButtonBox() *gtk.EventBox {
 	btn.SetImage(img)
 	btn.SetCanFocus(false)
 	box.PackStart(btn, true, true, 6)
+	btn.Connect("clicked", func() {
+		launch(*cmdLogout, false)
+	})
 
 	btn, _ = gtk.ButtonNew()
 	pixbuf, _ = createPixbuf("system-lock-screen", *iconSizeLarge)
@@ -535,6 +538,9 @@ func setUpButtonBox() *gtk.EventBox {
 	btn.SetImage(img)
 	btn.SetCanFocus(false)
 	box.PackStart(btn, true, true, 6)
+	btn.Connect("clicked", func() {
+		launch(*cmdLock, false)
+	})
 
 	btn, _ = gtk.ButtonNew()
 	pixbuf, _ = createPixbuf("system-reboot", *iconSizeLarge)
@@ -542,6 +548,9 @@ func setUpButtonBox() *gtk.EventBox {
 	btn.SetImage(img)
 	btn.SetCanFocus(false)
 	box.PackStart(btn, true, true, 6)
+	btn.Connect("clicked", func() {
+		launch(*cmdRestart, false)
+	})
 
 	btn, _ = gtk.ButtonNew()
 	pixbuf, _ = createPixbuf("system-shutdown", *iconSizeLarge)
@@ -549,6 +558,9 @@ func setUpButtonBox() *gtk.EventBox {
 	btn.SetImage(img)
 	btn.SetCanFocus(false)
 	box.PackStart(btn, true, true, 6)
+	btn.Connect("clicked", func() {
+		launch(*cmdShutdown, false)
+	})
 
 	eventBox.Connect("enter-notify-event", func() {
 		cancelClose()

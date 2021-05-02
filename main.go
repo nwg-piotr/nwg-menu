@@ -118,6 +118,10 @@ var fileManager = flag.String("fm", "thunar", "File Manager")
 var term = flag.String("term", "alacritty", "Terminal emulator")
 var windowWidth = flag.Int("w", 0, "window Width")
 var windowHeigth = flag.Int("h", 0, "window Heigth")
+var cmdLock = flag.String("cmd-lock", "swaylock -f -c 000000", "screen lock command")
+var cmdLogout = flag.String("cmd-logout", "swaymsg exit", "logout command")
+var cmdRestart = flag.String("cmd-restart", "systemctl reboot", "reboot command")
+var cmdShutdown = flag.String("cmd-shutdown", "systemctl -i poweroff", "shutdown command")
 
 func main() {
 	timeStart := time.Now()
