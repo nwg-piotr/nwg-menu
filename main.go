@@ -116,6 +116,8 @@ var itemPadding = flag.Uint("padding", 2, "vertical item padding")
 var lang = flag.String("lang", "", "force lang, e.g. \"en\", \"pl\"")
 var fileManager = flag.String("fm", "thunar", "File Manager")
 var term = flag.String("term", "alacritty", "Terminal emulator")
+var windowWidth = flag.Int("w", 0, "window Width")
+var windowHeigth = flag.Int("h", 0, "window Heigth")
 
 func main() {
 	timeStart := time.Now()
@@ -230,6 +232,14 @@ func main() {
 		}
 	}
 
+	if *windowWidth == 0 {
+		*windowWidth = screenHeight * 6 / 10
+	}
+
+	if *windowHeigth == 0 {
+		*windowHeigth = screenHeight * 6 / 10
+	}
+
 	if *valign == "bottom" {
 		layershell.SetAnchor(win, layershell.LAYER_SHELL_EDGE_BOTTOM, true)
 	} else {
@@ -339,7 +349,7 @@ func main() {
 	buttonBox := setUpButtonBox()
 	rightColumn.PackEnd(buttonBox, false, true, 10)
 
-	win.SetSizeRequest(screenHeight*6/10, screenHeight*6/10)
+	win.SetSizeRequest(*windowWidth, *windowHeigth)
 
 	win.ShowAll()
 
