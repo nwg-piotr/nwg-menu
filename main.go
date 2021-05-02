@@ -308,7 +308,7 @@ func main() {
 	win.Add(outerBox)
 
 	alignmentBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
-	alignmentBox.SetHomogeneous(true)
+	//alignmentBox.SetHomogeneous(true)
 	outerBox.PackStart(alignmentBox, true, true, 10)
 
 	leftBox, _ = gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)

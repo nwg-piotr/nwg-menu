@@ -36,11 +36,16 @@ func setUpPinnedListBox() *gtk.ListBox {
 			}
 			hBox.PackStart(img, false, false, 0)
 			lbl, _ := gtk.LabelNew("")
+			name := ""
 			if entry.NameLoc != "" {
-				lbl.SetText(entry.NameLoc)
+				name = entry.NameLoc
 			} else {
-				lbl.SetText(entry.Name)
+				name = entry.Name
 			}
+			if len(name) > 35 {
+				name = fmt.Sprintf("%s...", name[:32])
+			}
+			lbl.SetText(name)
 			hBox.PackStart(lbl, false, false, 0)
 			row.Add(vBox)
 
@@ -172,6 +177,7 @@ func connectCategoryListBox(catName string, eventBox *gtk.EventBox, row *gtk.Lis
 				resultWindow.Destroy()
 			}
 			resultWindow, _ = gtk.ScrolledWindowNew(nil, nil)
+			resultWindow.SetPolicy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
 			resultWindow.Connect("enter-notify-event", func() {
 				cancelClose()
 			})
@@ -263,6 +269,7 @@ func setUpCategorySearchResult(searchPhrase string) *gtk.ListBox {
 	listBox, _ := gtk.ListBoxNew()
 
 	resultWindow, _ = gtk.ScrolledWindowNew(nil, nil)
+	resultWindow.SetPolicy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
 	resultWindow.Connect("enter-notify-event", func() {
 		cancelClose()
 	})
@@ -307,7 +314,12 @@ func setUpCategorySearchResult(searchPhrase string) *gtk.ListBox {
 			img, _ := gtk.ImageNewFromPixbuf(pixbuf)
 			hBox.PackStart(img, false, false, 0)
 
-			lbl, _ := gtk.LabelNew(entry.NameLoc)
+			name := entry.NameLoc
+			if len(name) > 45 {
+				name = fmt.Sprintf("%s...", name[:42])
+			}
+
+			lbl, _ := gtk.LabelNew(name)
 			hBox.PackStart(lbl, false, false, 0)
 
 			row.Add(vBox)
@@ -326,6 +338,7 @@ func setUpFileSearchResult() *gtk.ListBox {
 		fileSearchResultWindow.Destroy()
 	}
 	fileSearchResultWindow, _ = gtk.ScrolledWindowNew(nil, nil)
+	fileSearchResultWindow.SetPolicy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
 	fileSearchResultWindow.Connect("enter-notify-event", func() {
 		cancelClose()
 	})
@@ -410,7 +423,7 @@ func searchUserDir(dir string) {
 	fileSearchResults = make(map[string]string)
 	filepath.WalkDir(userDirsMap[dir], walk)
 	if len(fileSearchResults) > 0 {
-		row := setUpUserDirsListRow(fmt.Sprintf("folder-%s-symbolic", dir), "", dir, userDirsMap)
+		row := setUpUserDirsListRow(fmt.Sprintf("folder-%s", dir), "", dir, userDirsMap)
 		fileSearchResultListBox.Add(row)
 		fileSearchResultListBox.ShowAll()
 
@@ -426,17 +439,17 @@ func setUpUserDirsList() *gtk.ListBox {
 	listBox, _ := gtk.ListBoxNew()
 	userDirsMap = mapXdgUserDirs()
 
-	row := setUpUserDirsListRow("folder-home-symbolic", "Home", "home", userDirsMap)
+	row := setUpUserDirsListRow("folder-home", "Home", "home", userDirsMap)
 	listBox.Add(row)
-	row = setUpUserDirsListRow("folder-documents-symbolic", "", "documents", userDirsMap)
+	row = setUpUserDirsListRow("folder-documents", "", "documents", userDirsMap)
 	listBox.Add(row)
-	row = setUpUserDirsListRow("folder-downloads-symbolic", "", "downloads", userDirsMap)
+	row = setUpUserDirsListRow("folder-downloads", "", "downloads", userDirsMap)
 	listBox.Add(row)
-	row = setUpUserDirsListRow("folder-music-symbolic", "", "music", userDirsMap)
+	row = setUpUserDirsListRow("folder-music", "", "music", userDirsMap)
 	listBox.Add(row)
-	row = setUpUserDirsListRow("folder-pictures-symbolic", "", "pictures", userDirsMap)
+	row = setUpUserDirsListRow("folder-pictures", "", "pictures", userDirsMap)
 	listBox.Add(row)
-	row = setUpUserDirsListRow("folder-videos-symbolic", "", "videos", userDirsMap)
+	row = setUpUserDirsListRow("folder-videos", "", "videos", userDirsMap)
 	listBox.Add(row)
 
 	listBox.Connect("enter-notify-event", func() {
@@ -452,7 +465,7 @@ func setUpUserDirsListRow(iconName, displayName, entryName string, userDirsMap m
 		displayName = parts[(len(parts) - 1)]
 	}
 	row, _ := gtk.ListBoxRowNew()
-	row.SetCanFocus(false)
+	//row.SetCanFocus(false)
 	row.SetSelectable(false)
 	vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 	eventBox, _ := gtk.EventBoxNew()
@@ -460,8 +473,12 @@ func setUpUserDirsListRow(iconName, displayName, entryName string, userDirsMap m
 	eventBox.Add(hBox)
 	vBox.PackStart(eventBox, false, false, *itemPadding*3)
 
-	img, _ := gtk.ImageNewFromIconName(iconName, gtk.ICON_SIZE_BUTTON)
+	img, _ := gtk.ImageNewFromIconName(iconName, gtk.ICON_SIZE_DND)
 	hBox.PackStart(img, false, false, 0)
+
+	if len(displayName) > 45 {
+		displayName = fmt.Sprintf("%s...", displayName[:42])
+	}
 	lbl, _ := gtk.LabelNew(displayName)
 	hBox.PackStart(lbl, false, false, 0)
 	row.Add(vBox)
@@ -484,7 +501,7 @@ func setUpUserDirsListRow(iconName, displayName, entryName string, userDirsMap m
 
 func setUpUserFileSearchResultRow(fileName, filePath string) *gtk.ListBoxRow {
 	row, _ := gtk.ListBoxRowNew()
-	row.SetCanFocus(false)
+	//row.SetCanFocus(false)
 	row.SetSelectable(false)
 	vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 	eventBox, _ := gtk.EventBoxNew()
@@ -492,8 +509,8 @@ func setUpUserFileSearchResultRow(fileName, filePath string) *gtk.ListBoxRow {
 	eventBox.Add(hBox)
 	vBox.PackStart(eventBox, false, false, *itemPadding)
 
-	if len(fileName) > 37 {
-		fileName = fmt.Sprintf("%s...", fileName[:35])
+	if len(fileName) > 45 {
+		fileName = fmt.Sprintf("%s...", fileName[:42])
 	}
 	lbl, _ := gtk.LabelNew(fileName)
 	hBox.PackStart(lbl, false, false, 0)
