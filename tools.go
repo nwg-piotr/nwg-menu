@@ -582,6 +582,7 @@ func launch(command string, terminal bool) {
 	}
 
 	cmd := exec.Command(elements[cmdIdx], elements[1+cmdIdx:]...)
+
 	if terminal {
 		args := []string{"-e", elements[cmdIdx]}
 		cmd = exec.Command(*term, args...)
@@ -598,6 +599,16 @@ func launch(command string, terminal bool) {
 	msg := fmt.Sprintf("env vars: %s; command: '%s'; args: %s\n", envVars, elements[cmdIdx], elements[1+cmdIdx:])
 	println(msg)
 
+	go cmd.Run()
+
+	glib.TimeoutAdd(uint(150), func() bool {
+		gtk.MainQuit()
+		return false
+	})
+}
+
+func open(filePath string) {
+	cmd := exec.Command(*fileManager, filePath)
 	go cmd.Run()
 
 	glib.TimeoutAdd(uint(150), func() bool {

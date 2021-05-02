@@ -500,13 +500,13 @@ func setUpUserFileSearchResultRow(fileName, filePath string) *gtk.ListBoxRow {
 	row.Add(vBox)
 
 	row.Connect("activate", func() {
-		launch(fmt.Sprintf("%s %s", *fileManager, filePath), false)
+		open(filePath)
 	})
 
 	eventBox.Connect("button-release-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
 		btnEvent := gdk.EventButtonNewFromEvent(e)
 		if btnEvent.Button() == 1 {
-			launch(fmt.Sprintf("%s %s", *fileManager, filePath), false)
+			open(filePath)
 			return true
 		}
 		return false
