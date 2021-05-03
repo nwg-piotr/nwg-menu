@@ -21,9 +21,9 @@ import (
 )
 
 /*
-Window on-leave-notify event hides the dock with glib Timeout 1000 ms.
+Window on-leave-notify event hides the window with glib Timeout 1000 ms.
 We might have left the window by accident, so let's clear the timeout if window re-entered.
-Furthermore - hovering a button triggers window on-leave-notify event, and the timeout
+Furthermore - hovering a widget triggers window on-leave-notify event, and the timeout
 needs to be cleared as well.
 */
 func cancelClose() {
@@ -506,7 +506,7 @@ func loadTextFile(path string) ([]string, error) {
 	return output, nil
 }
 
-func pinTask(itemID string) {
+func pinItem(itemID string) {
 	for _, item := range pinned {
 		if item == itemID {
 			println(item, "already pinned")
@@ -515,13 +515,19 @@ func pinTask(itemID string) {
 	}
 	pinned = append(pinned, itemID)
 	savePinned()
-	refresh = true
+	println(itemID, "pinned")
+
+	row := setUpPinnedListBoxRow(itemID)
+	pinnedListBox.Add(row)
+	pinnedListBox.ShowAll()
 }
 
-func unpinTask(itemID string) {
-	pinned = remove(pinned, itemID)
-	savePinned()
-	refresh = true
+func unpinItem(itemID string) {
+	if isIn(pinned, itemID) {
+		pinned = remove(pinned, itemID)
+		savePinned()
+		println(itemID, "unpinned")
+	}
 }
 
 func remove(s []string, r string) []string {
@@ -549,7 +555,6 @@ func savePinned() {
 				println("Error saving pinned", err)
 			}
 		}
-
 	}
 }
 

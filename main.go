@@ -29,7 +29,6 @@ var (
 	leftBox                   *gtk.Box
 	rightBox                  *gtk.Box
 	src                       glib.SourceHandle
-	refresh                   bool // we will use this to trigger rebuilding mainBox
 	imgSizeScaled             int
 	currentWsNum, targetWsNum int64
 	win                       *gtk.Window
@@ -87,6 +86,7 @@ var desktopEntries []desktopEntry
 var (
 	categoriesListBox       *gtk.ListBox
 	userDirsListBox         *gtk.ListBox
+	pinnedListBox           *gtk.ListBox
 	resultWrapper           *gtk.Box
 	resultWindow            *gtk.ScrolledWindow
 	fileSearchResults       map[string]string
@@ -116,8 +116,8 @@ var itemPadding = flag.Uint("padding", 2, "vertical item padding")
 var lang = flag.String("lang", "", "force lang, e.g. \"en\", \"pl\"")
 var fileManager = flag.String("fm", "thunar", "File Manager")
 var term = flag.String("term", "alacritty", "Terminal emulator")
-var windowWidth = flag.Int("w", 0, "window Width")
-var windowHeigth = flag.Int("h", 0, "window Heigth")
+var windowWidth = flag.Int("width", 0, "window width")
+var windowHeigth = flag.Int("height", 0, "window height")
 var cmdLock = flag.String("cmd-lock", "swaylock -f -c 000000", "screen lock command")
 var cmdLogout = flag.String("cmd-logout", "swaymsg exit", "logout command")
 var cmdRestart = flag.String("cmd-restart", "systemctl reboot", "reboot command")
@@ -183,6 +183,11 @@ func main() {
 
 	// DATA
 	pinnedFile = filepath.Join(cacheDirectory, "nwg-pin-cache")
+	pinned, err = loadTextFile(pinnedFile)
+	if err != nil {
+		pinned = nil
+	}
+
 	cssFile := filepath.Join(configDirectory, *cssFileName)
 
 	appDirs = getAppDirs()
@@ -322,7 +327,7 @@ func main() {
 		leftColumn.PackStart(searchEntry, false, false, 6)
 	}
 
-	pinnedListBox := setUpPinnedListBox()
+	pinnedListBox = setUpPinnedListBox()
 	leftColumn.PackStart(pinnedListBox, false, false, 0)
 
 	sep, _ := gtk.SeparatorNew(gtk.ORIENTATION_HORIZONTAL)

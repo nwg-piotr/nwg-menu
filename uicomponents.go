@@ -12,69 +12,73 @@ import (
 
 func setUpPinnedListBox() *gtk.ListBox {
 	listBox, _ := gtk.ListBoxNew()
-	lines, err := loadTextFile(pinnedFile)
-	if err == nil {
-		println(fmt.Sprintf("Loaded %v pinned items", len(lines)))
-		for _, l := range lines {
-			entry := id2entry[l]
 
-			row, _ := gtk.ListBoxRowNew()
-			row.SetSelectable(false)
-			row.SetCanFocus(false)
-			vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
-
-			// We need gtk.EventBox to detect mouse event
-			eventBox, _ := gtk.EventBoxNew()
-			hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 6)
-			eventBox.Add(hBox)
-			vBox.PackStart(eventBox, false, false, *itemPadding)
-
-			pixbuf, _ := createPixbuf(entry.Icon, *iconSizeLarge)
-			img, _ := gtk.ImageNewFromPixbuf(pixbuf)
-			if err != nil {
-				println(err, entry.Icon)
-			}
-			hBox.PackStart(img, false, false, 0)
-			lbl, _ := gtk.LabelNew("")
-			name := ""
-			if entry.NameLoc != "" {
-				name = entry.NameLoc
-			} else {
-				name = entry.Name
-			}
-			if len(name) > 35 {
-				name = fmt.Sprintf("%s...", name[:32])
-			}
-			lbl.SetText(name)
-			hBox.PackStart(lbl, false, false, 0)
-			row.Add(vBox)
-
-			row.Connect("activate", func() {
-				launch(entry.Exec, entry.Terminal)
-			})
-
-			eventBox.Connect("button-release-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
-				btnEvent := gdk.EventButtonNewFromEvent(e)
-				if btnEvent.Button() == 1 {
-					launch(entry.Exec, entry.Terminal)
-					return true
-				} else if btnEvent.Button() == 3 {
-					println("Unpin ", entry.DesktopID)
-					return true
-				}
-				return false
-			})
-
+	if len(pinned) > 0 {
+		for _, desktopID := range pinned {
+			row := setUpPinnedListBoxRow(desktopID)
 			listBox.Add(row)
 		}
-	} else {
-		println(fmt.Sprintf("%s file not found", pinnedFile))
 	}
+
 	listBox.Connect("enter-notify-event", func() {
 		cancelClose()
 	})
 
 	return listBox
+}
+
+func setUpPinnedListBoxRow(desktopID string) *gtk.ListBoxRow {
+	entry := id2entry[desktopID]
+
+	row, _ := gtk.ListBoxRowNew()
+	row.SetSelectable(false)
+	row.SetCanFocus(false)
+	vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
+
+	// We need gtk.EventBox to detect mouse event
+	eventBox, _ := gtk.EventBoxNew()
+	hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 6)
+	eventBox.Add(hBox)
+	vBox.PackStart(eventBox, false, false, *itemPadding)
+
+	pixbuf, _ := createPixbuf(entry.Icon, *iconSizeLarge)
+	img, err := gtk.ImageNewFromPixbuf(pixbuf)
+	if err != nil {
+		println(err, entry.Icon)
+	}
+	hBox.PackStart(img, false, false, 0)
+	lbl, _ := gtk.LabelNew("")
+	name := ""
+	if entry.NameLoc != "" {
+		name = entry.NameLoc
+	} else {
+		name = entry.Name
+	}
+	if len(name) > 35 {
+		name = fmt.Sprintf("%s...", name[:32])
+	}
+	lbl.SetText(name)
+	hBox.PackStart(lbl, false, false, 0)
+	row.Add(vBox)
+
+	row.Connect("activate", func() {
+		launch(entry.Exec, entry.Terminal)
+	})
+
+	eventBox.Connect("button-release-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
+		btnEvent := gdk.EventButtonNewFromEvent(e)
+		if btnEvent.Button() == 1 {
+			launch(entry.Exec, entry.Terminal)
+			return true
+		} else if btnEvent.Button() == 3 {
+			unpinItem(entry.DesktopID)
+			row.Destroy()
+			return true
+		}
+		return false
+	})
+
+	return row
 }
 
 func setUpCategoriesListBox() *gtk.ListBox {
@@ -241,11 +245,14 @@ func setUpCategoryListBox(listCategory []string) *gtk.ListBox {
 			eventBox.Add(hBox)
 			vBox.PackStart(eventBox, false, false, *itemPadding)
 
+			ID := entry.DesktopID
 			eventBox.Connect("button-release-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
 				btnEvent := gdk.EventButtonNewFromEvent(e)
 				if btnEvent.Button() == 1 {
 					launch(entry.Exec, entry.Terminal)
 					return true
+				} else if btnEvent.Button() == 3 {
+					pinItem(ID)
 				}
 				return false
 			})
@@ -298,6 +305,7 @@ func setUpCategorySearchResult(searchPhrase string) *gtk.ListBox {
 
 			exec := entry.Exec
 			term := entry.Terminal
+			ID := entry.DesktopID
 			row.Connect("activate", func() {
 				launch(exec, term)
 			})
@@ -306,6 +314,8 @@ func setUpCategorySearchResult(searchPhrase string) *gtk.ListBox {
 				if btnEvent.Button() == 1 {
 					launch(exec, term)
 					return true
+				} else if btnEvent.Button() == 3 {
+					pinItem(ID)
 				}
 				return false
 			})
