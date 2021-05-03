@@ -3,11 +3,14 @@
 This code provides the MenuStart plugin to [nwg-panel](https://github.com/nwg-piotr/nwg-panel). It may be also
 used standalone, however, with a little help from command line arguments.
 
+This program is being developed with [sway](https://github.com/swaywm/sway) in mind. It should work with
+other wlroots-based Wayland compositors, but for now it's only been tested briefly on Wayfire.
+
 The `nwg-menu` command displays the system menu with simplified [freedesktop main categories](https://specifications.freedesktop.org/menu-spec/latest/apa.html) (8 instead of 13). It also provides the search entry,
 to look for installed application on the basis of .desktop files, and for files in XDG user directories.
 
 You may pin applications by right-clicking them. Pinned items will appear above the categories list. Right-click
-a pinned item to unpin it. The pinned items cache is shared with the `nwggrid` command from
+a pinned item to unpin it. The pinned items cache is shared with the `nwggrid` command, which is a part of
 [nwg-launchers](https://github.com/nwg-piotr/nwg-launchers).
 
 In the bottom-right corner of the window you'll also see a set of buttons: logout, lock screen, restart and shutdown.
@@ -66,16 +69,24 @@ Usage of nwg-menu:
 
 ## Installation
 
-### Requirements
+### Dependencies
 
-- go 1.16
+- go 1.16 (just to build)
 - gtk3
 - gtk-layer-shell
+
+Optional (recommended):
+
+- thunar
+- alacritty
+
+You may use another file manager and terminal emulator, but for now the program has not yet been tested with anything
+but the two mentioned above.
 
 ### Steps
 
 1. Clone the repository, cd into it.
-2. Install necessary golang libraries with `make get`. First time it may take awhile, be patient.
+2. Install necessary golang libraries with `make get`.
 3. `make build`
 4. `sudo make install`
 
@@ -85,18 +96,11 @@ to install the provided binary by executing step 4.
 ## Running
 
 Plugin integration and the config GUI will be available in the nwg-panel 0.3.1 release. For now you can start the menu
-from the command line / key binding. On sway, if you provide the output name, the window will be automatically scaled
-to the output height * 0.6. This may look bad on vertically oriented displays: use `-width` / `height` arguments
-where necessary. Since one of my displays is vertical, I use a key binding as below:
+from the command line / key binding. **On sway**, if you provide the output name, the window will be automatically scaled to the output height * 0.6 in both dimensions. This may look bad on vertical displays: use `-width` / `height` arguments where necessary. Since one of my displays is vertical, I use a key binding as below:
 
 ```
 bindsym Mod1+F2 exec nwg-menu -d -width 648 -height 648
 ```
-
-## Compatibility
-
-1. **sway** for sure
-2. **other Wayland compositors** - probably
 
 ## Styling
 
