@@ -104,7 +104,7 @@ bindsym Mod1+F2 exec nwg-menu -d -width 648 -height 648
 
 ## Styling
 
-Edit `~/.config/nwg-dock/menu-start.css` to your taste.
+Edit `~/.config/nwg-panel/menu-start.css` to your taste.
 
 ## Credits
 
