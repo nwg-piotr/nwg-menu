@@ -91,3 +91,20 @@ where necessary.
 
 1. **sway** for sure
 2. **other Wayland compositors** - probably
+
+## Styling
+
+Edit `~/.config/nwg-dock/menu-start.css` to your taste.
+
+## Credits
+
+This program uses some great libraries:
+
+- [gotk3](https://github.com/gotk3/gotk3) Copyright (c) 2013-2014 Conformal Systems LLC,
+Copyright (c) 2015-2018 gotk3 contributors
+- [gotk3-layershell](https://github.com/dlasky/gotk3-layershell) by [@dlasky](https://github.com/dlasky/gotk3-layershell/commits?author=dlasky) - many thanks for writing this software, and for patience with my requests!
+- [go-sway](https://github.com/joshuarubin/go-sway) Copyright (c) 2019 Joshua Rubin
+- [go-singleinstance](github.com/allan-simon/go-singleinstance) Copyright (c) 2015 Allan Simon
+
+The nwg-shell logo (which is also the menu button graphics) created by [SGSE](https://github.com/sgse), licensed
+under the terms of the Creative Commons license [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.en).
