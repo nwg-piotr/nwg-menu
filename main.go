@@ -128,7 +128,7 @@ func main() {
 	flag.Parse()
 
 	if *displayVersion {
-		fmt.Printf("nwg-panel-plugin-menu version %s\n", version)
+		fmt.Printf("nwg-menu version %s\n", version)
 		os.Exit(0)
 	}
 
@@ -146,7 +146,7 @@ func main() {
 	}()
 
 	// We want the same key/mouse binding to turn the dock off: kill the running instance and exit.
-	lockFilePath := fmt.Sprintf("%s/nwg-panel-plugin-menu.lock", tempDir())
+	lockFilePath := fmt.Sprintf("%s/nwg-menu.lock", tempDir())
 	lockFile, err := singleinstance.CreateLockFile(lockFilePath)
 	if err != nil {
 		pid, err := readTextFile(lockFilePath)
@@ -175,6 +175,10 @@ func main() {
 
 	// ENVIRONMENT
 	configDirectory = configDir()
+
+	if !pathExists(filepath.Join(configDirectory, "menu-start.css")) {
+		copyFile("/usr/share/nwg-menu/menu-start.css", filepath.Join(configDirectory, "menu-start.css"))
+	}
 
 	cacheDirectory := cacheDir()
 	if cacheDirectory == "" {

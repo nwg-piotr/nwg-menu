@@ -12,6 +12,7 @@ build:
 install:
 	mkdir -p /usr/share/nwg-menu
 	cp -r desktop-directories /usr/share/nwg-menu
+	cp menu-start.css /usr/share/nwg-menu
 	cp bin/nwg-menu /usr/bin
 
 uninstall:

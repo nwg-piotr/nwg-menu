@@ -161,9 +161,13 @@ func readTextFile(path string) (string, error) {
 
 func configDir() string {
 	if os.Getenv("XDG_CONFIG_HOME") != "" {
+		dir := fmt.Sprintf("%s/nwg-panel", os.Getenv("XDG_CONFIG_HOME"))
+		createDir(dir)
 		return (fmt.Sprintf("%s/nwg-panel", os.Getenv("XDG_CONFIG_HOME")))
 	}
-	return (fmt.Sprintf("%s/.config/nwg-panel", os.Getenv("HOME")))
+	dir := fmt.Sprintf("%s/.config/nwg-panel", os.Getenv("HOME"))
+	createDir(dir)
+	return dir
 }
 
 func createDir(dir string) {
@@ -257,7 +261,7 @@ func listDesktopFiles() []string {
 }
 
 func setUpCategories() {
-	path := "/usr/share/nwg-panel-plugin-menu/desktop-directories"
+	path := "/usr/share/nwg-menu/desktop-directories"
 	var other category
 
 	for _, cName := range categoryNames {

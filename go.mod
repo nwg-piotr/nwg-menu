@@ -1,4 +1,4 @@
-module github.com/nwg-piotr/nwg-panel-plugin-menu
+module github.com/nwg-piotr/nwg-menu
 
 go 1.16
 
