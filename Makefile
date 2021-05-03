@@ -7,12 +7,12 @@ get:
 	go get github.com/allan-simon/go-singleinstance
 
 build:
-	go build -o bin/nwg-panel-plugin-menu *.go
+	go build -o bin/nwg-menu *.go
 
 install:
 	mkdir -p /usr/share/nwg-menu
 	cp -r desktop-directories /usr/share/nwg-menu
-	cp bin/nwg-panel-plugin-menu /usr/bin
+	cp bin/nwg-menu /usr/bin
 
 uninstall:
 	rm /usr/bin/nwg-menu
