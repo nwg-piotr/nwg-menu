@@ -85,7 +85,11 @@ Usage of nwg-menu:
 Plugin integration and the config GUI will be available in the nwg-panel 0.3.1 release. For now you can start the menu
 from the command line / key binding. On sway, if you provide the output name, the window will be automatically scaled
 to the output height * 0.6. This may look bad on vertically oriented displays: use `-width` / `height` arguments
-where necessary.
+where necessary. Since one of my displays is vertical, I use a key binding as below:
+
+```
+bindsym Mod1+F2 exec nwg-menu -d -width 648 -height 648
+```
 
 ## Compatibility
 
