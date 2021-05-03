@@ -1,8 +1,7 @@
 # nwg-menu
 
-This code has initially been intended to provide the MenuStart plugin to
-[nwg-panel](https://github.com/nwg-piotr/nwg-panel). Finally it's going to work standalone as well. You'll only need
-to pass some command line arguments.
+This code provides the MenuStart plugin to [nwg-panel](https://github.com/nwg-piotr/nwg-panel). It may be also
+used standalone, however, with a little help from command line arguments.
 
 The `nwg-menu` command displays the system menu with simplified [freedesktop main categories](https://specifications.freedesktop.org/menu-spec/latest/apa.html) (8 instead of 13). It also provides the search entry,
 to look for installed application on the basis of .desktop files, and for files in XDG user directories.
