@@ -10,12 +10,12 @@ build:
 	go build -o bin/nwg-panel-plugin-menu *.go
 
 install:
-	mkdir -p /usr/share/nwg-panel-plugin-menu
-	cp -r desktop-directories /usr/share/nwg-panel-plugin-menu
+	mkdir -p /usr/share/nwg-menu
+	cp -r desktop-directories /usr/share/nwg-menu
 	cp bin/nwg-panel-plugin-menu /usr/bin
 
 uninstall:
-	rm /usr/bin/nwg-panel-plugin-menu
+	rm /usr/bin/nwg-menu
 
 run:
 	go run *.go
