@@ -1,7 +1,8 @@
 # nwg-menu
 
-This code provides the MenuStart plugin to [nwg-panel](https://github.com/nwg-piotr/nwg-panel). It may be also
-used standalone, however, with a little help from command line arguments.
+This code provides the [MenuStart plugin](https://github.com/nwg-piotr/nwg-panel/wiki/plugins:-MenuStart)
+to [nwg-panel](https://github.com/nwg-piotr/nwg-panel). It also may be used standalone, however, with a little
+help from command line arguments.
 
 This program is being developed with [sway](https://github.com/swaywm/sway) in mind. It should work with
 other wlroots-based Wayland compositors, but for now it's only been tested briefly on Wayfire.
@@ -95,8 +96,11 @@ to install the provided binary by executing step 4.
 
 ## Running
 
-Plugin integration and the config GUI will be available in the nwg-panel 0.3.1 release. For now you can start the menu
-from the command line / key binding. **On sway**, if you provide the output name, the window will be automatically scaled to the output height * 0.6 in both dimensions. This may look bad on vertical displays: use `-width` / `height` arguments where necessary. Since one of my displays is vertical, I use a key binding as below:
+Plugin integration and the config GUI has been available in the nwg-panel since the 0.3.1 version, see
+[Wiki](https://github.com/nwg-piotr/nwg-panel/wiki/plugins:-MenuStart). You may also start the menu from another panel
+or a key  binding. **On sway**, if you provide the output name, the window will be automatically scaled to the output
+ height * 0.6 in both dimensions. This may look bad on vertical displays: use `-width` / `height` arguments where
+ necessary. Since one of my displays is vertical, I use a key binding as below:
 
 ```
 bindsym Mod1+F2 exec nwg-menu -d -width 648 -height 648
