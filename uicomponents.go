@@ -200,8 +200,8 @@ func connectCategoryListBox(catName string, eventBox *gtk.EventBox, row *gtk.Lis
 }
 
 func setUpBackButton() *gtk.Box {
-	vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 10)
-	hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
+	vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
+	hBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 10)
 	vBox.PackStart(hBox, false, false, 0)
 	button, _ := gtk.ButtonNew()
 	button.SetCanFocus(false)
@@ -219,9 +219,9 @@ func setUpBackButton() *gtk.Box {
 	})
 	hBox.PackEnd(button, false, true, 0)
 
-	sep, _ := gtk.SeparatorNew(gtk.ORIENTATION_HORIZONTAL)
+	/*sep, _ := gtk.SeparatorNew(gtk.ORIENTATION_HORIZONTAL)
 	sep.SetCanFocus(false)
-	vBox.Add(sep)
+	vBox.Add(sep)*/
 
 	return vBox
 }
@@ -639,12 +639,13 @@ func setUpConfirmationBox(icon string, command string) *gtk.Box {
 		cancelClose()
 	})
 
-	buttonsWrapper.PackEnd(box, false, false, 0)
+	buttonsWrapper.PackEnd(box, false, false, 10)
 
 	box.ShowAll()
 	w := buttonBox.GetAllocatedWidth()
 	h := buttonBox.GetAllocatedHeight()
 	box.SetSizeRequest(w, h)
+	box.SetHExpand(false)
 
 	return box
 }
