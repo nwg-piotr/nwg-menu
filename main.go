@@ -19,7 +19,7 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 )
 
-const version = "0.0.1"
+const version = "0.0.2"
 
 var (
 	appDirs                   []string
@@ -96,6 +96,9 @@ var (
 	phrase                  string
 	resultListBox           *gtk.ListBox
 	fileSearchResultListBox *gtk.ListBox
+	buttonsWrapper          *gtk.Box
+	buttonBox               *gtk.EventBox
+	confirmationBox         *gtk.Box
 	userDirsMap             map[string]string
 )
 
@@ -225,8 +228,7 @@ func main() {
 
 	layershell.InitForWindow(win)
 
-	//screenWidth := 0
-	screenHeight := 0
+	//screenHeight := 0
 
 	var output2mon map[string]*gdk.Monitor
 	if *targetOutput != "" {
@@ -236,21 +238,9 @@ func main() {
 			monitor := output2mon[*targetOutput]
 			layershell.SetMonitor(win, monitor)
 
-			geometry := monitor.GetGeometry()
-			//screenWidth = geometry.GetWidth()
-			screenHeight = geometry.GetHeight()
-
 		} else {
 			println(err)
 		}
-	}
-
-	if *windowWidth == 0 {
-		*windowWidth = screenHeight * 6 / 10
-	}
-
-	if *windowHeigth == 0 {
-		*windowHeigth = screenHeight * 6 / 10
 	}
 
 	if *valign == "bottom" {
@@ -310,59 +300,60 @@ func main() {
 		cancelClose()
 	})
 
-	win.SetProperty("name", "menu-start-window")
-
 	outerBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
-	outerBox.SetProperty("name", "box")
 	win.Add(outerBox)
 
 	alignmentBox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
 	//alignmentBox.SetHomogeneous(true)
-	outerBox.PackStart(alignmentBox, true, true, 10)
+	outerBox.PackStart(alignmentBox, true, true, 0)
 
 	leftBox, _ = gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
-	alignmentBox.PackStart(leftBox, true, true, 10)
+	alignmentBox.PackStart(leftBox, false, false, 10)
 
 	leftColumn, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
-	leftBox.PackStart(leftColumn, true, true, 0)
+	leftBox.PackStart(leftColumn, false, false, 0)
 
 	searchEntry = setUpSearchEntry()
 	if *valign == "top" {
-		leftColumn.PackStart(searchEntry, false, false, 6)
+		leftColumn.PackStart(searchEntry, false, false, 10)
 	}
 
 	pinnedListBox = setUpPinnedListBox()
-	leftColumn.PackStart(pinnedListBox, false, false, 0)
+	leftColumn.PackStart(pinnedListBox, false, false, 10)
 
-	sep, _ := gtk.SeparatorNew(gtk.ORIENTATION_HORIZONTAL)
-	leftColumn.PackStart(sep, false, false, 10)
+	/*sep, _ := gtk.SeparatorNew(gtk.ORIENTATION_HORIZONTAL)
+	leftColumn.PackStart(sep, false, false, 10)*/
 
 	categoriesListBox = setUpCategoriesListBox()
-	leftColumn.PackStart(categoriesListBox, false, false, 0)
+	leftColumn.PackStart(categoriesListBox, false, false, 10)
 
 	if *valign != "top" {
-		leftColumn.PackEnd(searchEntry, false, false, 6)
+		leftColumn.PackEnd(searchEntry, false, false, 10)
 	}
 
 	rightBox, _ = gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
 	alignmentBox.PackStart(rightBox, true, true, 10)
 
 	rightColumn, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
+
 	rightBox.PackStart(rightColumn, true, true, 0)
 
 	userDirsListBox = setUpUserDirsList()
 	rightColumn.PackStart(userDirsListBox, false, true, 10)
 
 	backButton = setUpBackButton()
-	rightColumn.PackStart(backButton, false, false, 0)
+	rightColumn.PackStart(backButton, false, false, 10)
 
 	resultWrapper, _ = gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 	rightColumn.PackStart(resultWrapper, true, true, 0)
 
-	buttonBox := setUpButtonBox()
-	rightColumn.PackEnd(buttonBox, false, true, 10)
+	buttonsWrapper, _ = gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 
-	win.SetSizeRequest(*windowWidth, *windowHeigth)
+	buttonBox = setUpButtonBox()
+	buttonsWrapper.PackStart(buttonBox, false, false, 10)
+	rightColumn.PackEnd(buttonsWrapper, false, true, 0)
+
+	//win.SetSizeRequest(0, *windowHeigth)
 
 	win.ShowAll()
 
