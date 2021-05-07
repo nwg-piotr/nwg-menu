@@ -22,6 +22,7 @@ func setUpPinnedListBox() *gtk.ListBox {
 
 	listBox.Connect("enter-notify-event", func() {
 		cancelClose()
+		restoreButtonBox()
 	})
 
 	return listBox
@@ -113,6 +114,7 @@ func setUpCategoriesListBox() *gtk.ListBox {
 	}
 	listBox.Connect("enter-notify-event", func() {
 		cancelClose()
+		restoreButtonBox()
 	})
 	return listBox
 }
@@ -279,6 +281,7 @@ func setUpCategorySearchResult(searchPhrase string) *gtk.ListBox {
 	resultWindow.SetPolicy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
 	resultWindow.Connect("enter-notify-event", func() {
 		cancelClose()
+		restoreButtonBox()
 	})
 	resultWrapper.PackStart(resultWindow, true, true, 0)
 
@@ -351,6 +354,7 @@ func setUpFileSearchResult() *gtk.ListBox {
 	fileSearchResultWindow.SetPolicy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
 	fileSearchResultWindow.Connect("enter-notify-event", func() {
 		cancelClose()
+		restoreButtonBox()
 	})
 	resultWrapper.PackStart(fileSearchResultWindow, true, true, 0)
 
@@ -378,6 +382,7 @@ func setUpSearchEntry() *gtk.SearchEntry {
 	searchEntry, _ := gtk.SearchEntryNew()
 	searchEntry.Connect("enter-notify-event", func() {
 		cancelClose()
+		restoreButtonBox()
 	})
 	searchEntry.Connect("search-changed", func() {
 		phrase, _ = searchEntry.GetText()
@@ -421,6 +426,7 @@ func setUpSearchEntry() *gtk.SearchEntry {
 			clearSearchResult()
 			userDirsListBox.ShowAll()
 		}
+
 	})
 	searchEntry.Connect("focus-in-event", func() {
 		searchEntry.SetText("")
@@ -464,6 +470,7 @@ func setUpUserDirsList() *gtk.ListBox {
 
 	listBox.Connect("enter-notify-event", func() {
 		cancelClose()
+		restoreButtonBox()
 	})
 
 	return listBox
@@ -550,23 +557,26 @@ func setUpButtonBox() *gtk.EventBox {
 	eventBox.Add(wrapperHbox)
 
 	btn, _ := gtk.ButtonNew()
-	pixbuf, _ := createPixbuf("system-log-out", *iconSizeLarge)
+	pixbuf, _ := createPixbuf("system-lock-screen", *iconSizeLarge)
 	img, _ := gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
 	btn.SetCanFocus(false)
 	box.PackStart(btn, true, true, 6)
 	btn.Connect("clicked", func() {
-		launch(*cmdLogout, false)
+		launch(*cmdLock, false)
+		//confirmationBox = setUpConfirmationBox("system-lock-screen", *cmdLock)
+		buttonBox.Hide()
 	})
 
 	btn, _ = gtk.ButtonNew()
-	pixbuf, _ = createPixbuf("system-lock-screen", *iconSizeLarge)
+	pixbuf, _ = createPixbuf("system-log-out", *iconSizeLarge)
 	img, _ = gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
 	btn.SetCanFocus(false)
 	box.PackStart(btn, true, true, 6)
 	btn.Connect("clicked", func() {
-		launch(*cmdLock, false)
+		confirmationBox = setUpConfirmationBox("system-log-out", *cmdLogout)
+		buttonBox.Hide()
 	})
 
 	btn, _ = gtk.ButtonNew()
@@ -576,7 +586,8 @@ func setUpButtonBox() *gtk.EventBox {
 	btn.SetCanFocus(false)
 	box.PackStart(btn, true, true, 6)
 	btn.Connect("clicked", func() {
-		launch(*cmdRestart, false)
+		confirmationBox = setUpConfirmationBox("system-reboot", *cmdRestart)
+		buttonBox.Hide()
 	})
 
 	btn, _ = gtk.ButtonNew()
@@ -586,7 +597,8 @@ func setUpButtonBox() *gtk.EventBox {
 	btn.SetCanFocus(false)
 	box.PackStart(btn, true, true, 6)
 	btn.Connect("clicked", func() {
-		launch(*cmdShutdown, false)
+		confirmationBox = setUpConfirmationBox("system-shutdown", *cmdShutdown)
+		buttonBox.Hide()
 	})
 
 	eventBox.Connect("enter-notify-event", func() {
@@ -594,6 +606,56 @@ func setUpButtonBox() *gtk.EventBox {
 	})
 
 	return eventBox
+}
+
+func setUpConfirmationBox(icon string, command string) *gtk.Box {
+	box, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
+
+	btn, _ := gtk.ButtonNew()
+	pixbuf, _ := createPixbuf(icon, *iconSizeLarge)
+	img, _ := gtk.ImageNewFromPixbuf(pixbuf)
+	btn.SetImage(img)
+	btn.SetCanFocus(false)
+	box.PackEnd(btn, false, false, 6)
+	btn.Connect("clicked", func() {
+		defer restoreButtonBox()
+		launch(command, false)
+
+	})
+	btn.Connect("enter-notify-event", func() {
+		cancelClose()
+	})
+
+	btn, _ = gtk.ButtonNew()
+	pixbuf, _ = createPixbuf("dialog-cancel", *iconSizeLarge)
+	img, _ = gtk.ImageNewFromPixbuf(pixbuf)
+	btn.SetImage(img)
+	btn.SetCanFocus(false)
+	box.PackEnd(btn, false, false, 6)
+	btn.Connect("clicked", func() {
+		restoreButtonBox()
+	})
+	btn.Connect("enter-notify-event", func() {
+		cancelClose()
+	})
+
+	buttonsWrapper.PackEnd(box, false, false, 0)
+
+	box.ShowAll()
+	w := buttonBox.GetAllocatedWidth()
+	h := buttonBox.GetAllocatedHeight()
+	box.SetSizeRequest(w, h)
+
+	return box
+}
+
+func restoreButtonBox() {
+	if confirmationBox != nil {
+		confirmationBox.Destroy()
+	}
+	if !buttonBox.IsVisible() {
+		buttonBox.Show()
+	}
 }
 
 func clearSearchResult() {

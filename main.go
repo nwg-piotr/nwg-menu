@@ -19,7 +19,7 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 )
 
-const version = "0.0.1"
+const version = "0.0.2"
 
 var (
 	appDirs                   []string
@@ -96,6 +96,9 @@ var (
 	phrase                  string
 	resultListBox           *gtk.ListBox
 	fileSearchResultListBox *gtk.ListBox
+	buttonsWrapper          *gtk.Box
+	buttonBox               *gtk.EventBox
+	confirmationBox         *gtk.Box
 	userDirsMap             map[string]string
 )
 
@@ -348,6 +351,7 @@ func main() {
 	alignmentBox.PackStart(rightBox, true, true, 10)
 
 	rightColumn, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
+
 	rightBox.PackStart(rightColumn, true, true, 0)
 
 	userDirsListBox = setUpUserDirsList()
@@ -359,8 +363,11 @@ func main() {
 	resultWrapper, _ = gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 	rightColumn.PackStart(resultWrapper, true, true, 0)
 
-	buttonBox := setUpButtonBox()
-	rightColumn.PackEnd(buttonBox, false, true, 10)
+	buttonsWrapper, _ = gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
+
+	buttonBox = setUpButtonBox()
+	buttonsWrapper.PackStart(buttonBox, false, false, 0)
+	rightColumn.PackEnd(buttonsWrapper, false, true, 0)
 
 	win.SetSizeRequest(*windowWidth, *windowHeigth)
 
