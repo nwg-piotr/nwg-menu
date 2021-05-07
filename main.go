@@ -228,8 +228,7 @@ func main() {
 
 	layershell.InitForWindow(win)
 
-	//screenWidth := 0
-	screenHeight := 0
+	//screenHeight := 0
 
 	var output2mon map[string]*gdk.Monitor
 	if *targetOutput != "" {
@@ -239,17 +238,9 @@ func main() {
 			monitor := output2mon[*targetOutput]
 			layershell.SetMonitor(win, monitor)
 
-			geometry := monitor.GetGeometry()
-			//screenWidth = geometry.GetWidth()
-			screenHeight = geometry.GetHeight()
-
 		} else {
 			println(err)
 		}
-	}
-
-	if *windowHeigth == 0 {
-		*windowHeigth = screenHeight * 6 / 10
 	}
 
 	if *valign == "bottom" {
