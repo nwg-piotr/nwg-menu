@@ -43,19 +43,24 @@ func inPinned(taskID string) bool {
 }
 
 func createPixbuf(icon string, size int) (*gdk.Pixbuf, error) {
-	if strings.HasPrefix(icon, "/") {
+	iconTheme, err := gtk.IconThemeGetDefault()
+	if err != nil {
+		log.Fatal("Couldn't get default theme: ", err)
+	}
+
+	if strings.Contains(icon, "/") {
 		pixbuf, err := gdk.PixbufNewFromFileAtSize(icon, size, size)
 		if err != nil {
 			println(err)
 			return nil, err
 		}
 		return pixbuf, nil
+
+	} else if strings.HasSuffix(icon, ".svg") || strings.HasSuffix(icon, ".png") || strings.HasSuffix(icon, ".xpm") {
+		// for enties like "Icon=netflix-desktop.svg"
+		icon = strings.Split(icon, ".")[0]
 	}
 
-	iconTheme, err := gtk.IconThemeGetDefault()
-	if err != nil {
-		log.Fatal("Couldn't get default theme: ", err)
-	}
 	pixbuf, err := iconTheme.LoadIcon(icon, size, gtk.ICON_LOOKUP_FORCE_SIZE)
 
 	if err != nil {

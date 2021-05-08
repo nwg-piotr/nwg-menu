@@ -19,7 +19,7 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 )
 
-const version = "0.0.2"
+const version = "0.0.3"
 
 var (
 	appDirs                   []string
@@ -227,8 +227,6 @@ func main() {
 	}
 
 	layershell.InitForWindow(win)
-
-	//screenHeight := 0
 
 	var output2mon map[string]*gdk.Monitor
 	if *targetOutput != "" {
