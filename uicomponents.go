@@ -294,7 +294,8 @@ func setUpCategorySearchResult(searchPhrase string) *gtk.ListBox {
 		}
 		if !entry.NoDisplay && (strings.Contains(strings.ToLower(entry.NameLoc), strings.ToLower(searchPhrase)) ||
 			strings.Contains(strings.ToLower(entry.CommentLoc), strings.ToLower(searchPhrase)) ||
-			strings.Contains(strings.ToLower(entry.Comment), strings.ToLower(searchPhrase))) {
+			strings.Contains(strings.ToLower(entry.Comment), strings.ToLower(searchPhrase)) ||
+			strings.Contains(strings.ToLower(entry.Exec), strings.ToLower(searchPhrase))) {
 
 			counter++
 
