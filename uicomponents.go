@@ -494,7 +494,6 @@ func setUpUserDirsListRow(iconName, displayName, entryName string, userDirsMap m
 		displayName = parts[(len(parts) - 1)]
 	}
 	row, _ := gtk.ListBoxRowNew()
-	//row.SetCanFocus(false)
 	row.SetSelectable(false)
 	vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 	eventBox, _ := gtk.EventBoxNew()
@@ -538,9 +537,14 @@ func setUpUserFileSearchResultRow(fileName, filePath, userDirPath string, isDir 
 	eventBox.Add(hBox)
 	vBox.PackStart(eventBox, false, false, *itemPadding)
 
+	// split the leading part we don't want to see
+	fileName = strings.Split(filePath, userDirPath)[1]
+	if len(fileName) > 0 {
+		// split leading slash
+		fileName = fileName[1:]
+	}
+
 	if isDir {
-		// split the leading part we don't want to see
-		fileName = strings.Split(fileName, userDirPath)[1]
 		if len(fileName) > 0 {
 			img, _ := gtk.ImageNewFromIconName("folder", gtk.ICON_SIZE_MENU)
 			hBox.PackStart(img, false, false, 0)
