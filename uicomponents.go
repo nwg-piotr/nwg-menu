@@ -586,7 +586,7 @@ func setUpButtonBox() *gtk.EventBox {
 	eventBox, _ := gtk.EventBoxNew()
 	wrapperHbox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
 	box, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
-	wrapperHbox.PackStart(box, true, true, 10)
+	wrapperHbox.PackEnd(box, false, true, 10)
 	eventBox.Add(wrapperHbox)
 
 	btn, _ := gtk.ButtonNew()
@@ -649,7 +649,7 @@ func setUpConfirmationBox(icon string, command string) *gtk.Box {
 	img, _ := gtk.ImageNewFromPixbuf(pixbuf)
 	btn.SetImage(img)
 	btn.SetCanFocus(false)
-	box.PackEnd(btn, false, false, 6)
+	box.PackEnd(btn, false, false, 16)
 	btn.Connect("clicked", func() {
 		defer restoreButtonBox()
 		launch(command, false)
