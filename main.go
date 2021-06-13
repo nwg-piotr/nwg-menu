@@ -19,7 +19,7 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 )
 
-const version = "0.0.4"
+const version = "0.1.0"
 
 var (
 	appDirs                   []string
@@ -319,9 +319,6 @@ func main() {
 
 	pinnedListBox = setUpPinnedListBox()
 	leftColumn.PackStart(pinnedListBox, false, false, 10)
-
-	/*sep, _ := gtk.SeparatorNew(gtk.ORIENTATION_HORIZONTAL)
-	leftColumn.PackStart(sep, false, false, 10)*/
 
 	categoriesListBox = setUpCategoriesListBox()
 	leftColumn.PackStart(categoriesListBox, false, false, 10)

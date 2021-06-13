@@ -220,10 +220,6 @@ func setUpBackButton() *gtk.Box {
 	})
 	hBox.PackEnd(button, false, true, 0)
 
-	/*sep, _ := gtk.SeparatorNew(gtk.ORIENTATION_HORIZONTAL)
-	sep.SetCanFocus(false)
-	vBox.Add(sep)*/
-
 	return vBox
 }
 
@@ -411,11 +407,6 @@ func setUpSearchEntry() *gtk.SearchEntry {
 				fileSearchResultListBox = setUpFileSearchResult()
 				for key := range userDirsMap {
 					if key != "home" {
-						/*fileSearchResults = make(map[string]string)
-						if len(fileSearchResults) == 0 {
-							fileSearchResultListBox.Show()
-						}
-						filepath.WalkDir(userDirsMap[key], walk)*/
 						searchUserDir(key)
 					}
 				}
