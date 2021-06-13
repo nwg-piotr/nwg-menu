@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/fs"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/gotk3/gotk3/gdk"
@@ -329,8 +330,8 @@ func setUpCategorySearchResult(searchPhrase string) *gtk.ListBox {
 			hBox.PackStart(img, false, false, 0)
 
 			name := entry.NameLoc
-			if len(name) > 45 {
-				name = fmt.Sprintf("%s...", name[:42])
+			if len(name) > *sLen {
+				name = fmt.Sprintf("%s…", name[:*sLen-2])
 			}
 
 			lbl, _ := gtk.LabelNew(name)
@@ -375,6 +376,10 @@ func walk(path string, d fs.DirEntry, e error) error {
 		if strings.Contains(strings.ToLower(fileName), strings.ToLower(phrase)) {
 			fileSearchResults[fileName] = path
 		}
+	} else {
+		if strings.Contains(strings.ToLower(path), strings.ToLower(phrase)) {
+			fileSearchResults[path] = path
+		}
 	}
 	return nil
 }
@@ -406,11 +411,11 @@ func setUpSearchEntry() *gtk.SearchEntry {
 				fileSearchResultListBox = setUpFileSearchResult()
 				for key := range userDirsMap {
 					if key != "home" {
-						fileSearchResults = make(map[string]string)
+						/*fileSearchResults = make(map[string]string)
 						if len(fileSearchResults) == 0 {
 							fileSearchResultListBox.Show()
 						}
-						filepath.WalkDir(userDirsMap[key], walk)
+						filepath.WalkDir(userDirsMap[key], walk)*/
 						searchUserDir(key)
 					}
 				}
@@ -444,10 +449,25 @@ func searchUserDir(dir string) {
 		fileSearchResultListBox.Add(row)
 		fileSearchResultListBox.ShowAll()
 
-		for fileName, path := range fileSearchResults {
-			row := setUpUserFileSearchResultRow(fileName, path)
+		// The fileSearchResults map is unordered, but we need an order here.
+		// Let's create a slice of file names, sort it, and read the map in this order.
+
+		fileNames := make([]string, 0, len(fileSearchResults))
+		for k := range fileSearchResults {
+			fileNames = append(fileNames, k)
+		}
+		sort.Strings(fileNames)
+
+		for _, name := range fileNames {
+			path := fileSearchResults[name]
+			isDir := false
+			if strings.HasPrefix(name, userDirsMap[dir]) {
+				isDir = true
+			}
+			row := setUpUserFileSearchResultRow(name, path, userDirsMap[dir], isDir)
 			fileSearchResultListBox.Add(row)
 		}
+
 		fileSearchResultListBox.ShowAll()
 	}
 }
@@ -494,8 +514,8 @@ func setUpUserDirsListRow(iconName, displayName, entryName string, userDirsMap m
 	img, _ := gtk.ImageNewFromIconName(iconName, gtk.ICON_SIZE_DND)
 	hBox.PackStart(img, false, false, 0)
 
-	if len(displayName) > 45 {
-		displayName = fmt.Sprintf("%s...", displayName[:42])
+	if len(displayName) > *sLen {
+		displayName = fmt.Sprintf("%s…", displayName[:*sLen-2])
 	}
 	lbl, _ := gtk.LabelNew(displayName)
 	hBox.PackStart(lbl, false, false, 0)
@@ -517,9 +537,9 @@ func setUpUserDirsListRow(iconName, displayName, entryName string, userDirsMap m
 	return row
 }
 
-func setUpUserFileSearchResultRow(fileName, filePath string) *gtk.ListBoxRow {
+func setUpUserFileSearchResultRow(fileName, filePath, userDirPath string, isDir bool) *gtk.ListBoxRow {
 	row, _ := gtk.ListBoxRowNew()
-	//row.SetCanFocus(false)
+
 	row.SetSelectable(false)
 	vBox, _ := gtk.BoxNew(gtk.ORIENTATION_VERTICAL, 0)
 	eventBox, _ := gtk.EventBoxNew()
@@ -527,11 +547,23 @@ func setUpUserFileSearchResultRow(fileName, filePath string) *gtk.ListBoxRow {
 	eventBox.Add(hBox)
 	vBox.PackStart(eventBox, false, false, *itemPadding)
 
-	if len(fileName) > 45 {
-		fileName = fmt.Sprintf("%s...", fileName[:42])
+	if isDir {
+		// split the leading part we don't want to see
+		fileName = strings.Split(fileName, userDirPath)[1]
+		if len(fileName) > 0 {
+			img, _ := gtk.ImageNewFromIconName("folder", gtk.ICON_SIZE_MENU)
+			hBox.PackStart(img, false, false, 0)
+		}
 	}
-	lbl, _ := gtk.LabelNew(fileName)
-	hBox.PackStart(lbl, false, false, 0)
+
+	if len(fileName) > *sLen {
+		fileName = fmt.Sprintf("%s…", fileName[:*sLen-2])
+	}
+	if fileName != "" {
+		lbl, _ := gtk.LabelNew(fileName)
+		hBox.PackStart(lbl, false, false, 0)
+	}
+
 	row.Add(vBox)
 
 	row.Connect("activate", func() {
