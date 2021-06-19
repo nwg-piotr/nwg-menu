@@ -19,20 +19,17 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 )
 
-const version = "0.1.0"
+const version = "0.1.1"
 
 var (
-	appDirs                   []string
-	configDirectory           string
-	pinnedFile                string
-	pinned                    []string
-	leftBox                   *gtk.Box
-	rightBox                  *gtk.Box
-	src                       glib.SourceHandle
-	imgSizeScaled             int
-	currentWsNum, targetWsNum int64
-	win                       *gtk.Window
-	id2entry                  map[string]desktopEntry
+	appDirs         []string
+	configDirectory string
+	pinnedFile      string
+	pinned          []string
+	leftBox         *gtk.Box
+	rightBox        *gtk.Box
+	src             glib.SourceHandle
+	id2entry        map[string]desktopEntry
 )
 
 var categoryNames = [...]string{
@@ -120,8 +117,6 @@ var itemPadding = flag.Uint("padding", 2, "vertical item padding")
 var lang = flag.String("lang", "", "force lang, e.g. \"en\", \"pl\"")
 var fileManager = flag.String("fm", "thunar", "File Manager")
 var term = flag.String("term", "alacritty", "Terminal emulator")
-var windowWidth = flag.Int("width", 0, "window width")
-var windowHeigth = flag.Int("height", 0, "window height")
 var cmdLock = flag.String("cmd-lock", "swaylock -f -c 000000", "screen lock command")
 var cmdLogout = flag.String("cmd-logout", "swaymsg exit", "logout command")
 var cmdRestart = flag.String("cmd-restart", "systemctl reboot", "reboot command")
@@ -288,7 +283,7 @@ func main() {
 	// Close the window on leave, but not immediately, to avoid accidental closes
 	win.Connect("leave-notify-event", func() {
 		if *autohide {
-			src, err = glib.TimeoutAdd(uint(1000), func() bool {
+			src = glib.TimeoutAdd(uint(1000), func() bool {
 				gtk.MainQuit()
 				return false
 			})
