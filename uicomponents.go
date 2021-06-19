@@ -140,7 +140,7 @@ func notEmpty(listCategory []string) bool {
 	}
 	for _, desktopID := range listCategory {
 		entry := id2entry[desktopID]
-		if entry.NoDisplay == false {
+		if !entry.NoDisplay {
 			return true
 		}
 	}
@@ -455,7 +455,7 @@ func searchUserDir(dir string) {
 			if strings.HasPrefix(name, userDirsMap[dir]) {
 				isDir = true
 			}
-			row := setUpUserFileSearchResultRow(name, path, userDirsMap[dir], isDir)
+			row := setUpUserFileSearchResultRow(path, userDirsMap[dir], isDir)
 			fileSearchResultListBox.Add(row)
 		}
 
@@ -527,7 +527,7 @@ func setUpUserDirsListRow(iconName, displayName, entryName string, userDirsMap m
 	return row
 }
 
-func setUpUserFileSearchResultRow(fileName, filePath, userDirPath string, isDir bool) *gtk.ListBoxRow {
+func setUpUserFileSearchResultRow(filePath, userDirPath string, isDir bool) *gtk.ListBoxRow {
 	row, _ := gtk.ListBoxRowNew()
 
 	row.SetSelectable(false)
@@ -538,7 +538,7 @@ func setUpUserFileSearchResultRow(fileName, filePath, userDirPath string, isDir 
 	vBox.PackStart(eventBox, false, false, *itemPadding)
 
 	// split the leading part we don't want to see
-	fileName = strings.Split(filePath, userDirPath)[1]
+	fileName := strings.Split(filePath, userDirPath)[1]
 	if len(fileName) > 0 {
 		// split leading slash
 		fileName = fileName[1:]
