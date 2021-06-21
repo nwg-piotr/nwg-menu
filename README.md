@@ -19,6 +19,8 @@ The commands attached to them may be defined in the nwg-panel settings or given 
 
 ![00.png](https://scrot.cloud/images/2021/05/03/00.png)
 
+[![Packaging status](https://repology.org/badge/vertical-allrepos/nwg-menu.svg)](https://repology.org/project/nwg-menu/versions)
+
 To use the menu standalone (e.g. with another panel/bar or with a key binding), take a look at arguments:
 
 ```text
