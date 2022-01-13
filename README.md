@@ -93,9 +93,6 @@ but the two mentioned above.
 3. `make build`
 4. `sudo make install`
 
-Building the gotk3 library takes quite a lot of time. If your machine is x86_64, you may skip steps 3-4, and try
-to install the provided binary by executing step 4.
-
 ## Running
 
 Plugin integration and the config GUI has been available in the nwg-panel since the 0.3.1 version, see
