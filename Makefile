@@ -1,3 +1,6 @@
+PREFIX ?= /usr
+DESTDIR ?=
+
 get:
 	go get github.com/gotk3/gotk3
 	go get github.com/gotk3/gotk3/gdk
@@ -10,13 +13,14 @@ build:
 	go build -o bin/nwg-menu *.go
 
 install:
-	mkdir -p /usr/share/nwg-menu
-	cp -r desktop-directories /usr/share/nwg-menu
-	cp menu-start.css /usr/share/nwg-menu
-	cp bin/nwg-menu /usr/bin
+	mkdir -p $(DESTDIR)$(PREFIX)/share/nwg-menu
+	mkdir -p $(DESTDIR)$(PREFIX)/bin
+	cp -r desktop-directories $(DESTDIR)$(PREFIX)/share/nwg-menu
+	cp menu-start.css $(DESTDIR)$(PREFIX)/share/nwg-menu
+	cp bin/nwg-menu $(DESTDIR)$(PREFIX)/bin/nwg-menu
 
 uninstall:
-	rm /usr/bin/nwg-menu
+	rm $(DESTDIR)$(PREFIX)/bin/nwg-menu
 
 run:
 	go run *.go
