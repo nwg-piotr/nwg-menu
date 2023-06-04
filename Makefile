@@ -20,7 +20,8 @@ install:
 	cp bin/nwg-menu $(DESTDIR)$(PREFIX)/bin/nwg-menu
 
 uninstall:
-	rm $(DESTDIR)$(PREFIX)/bin/nwg-menu
+	rm -f $(DESTDIR)$(PREFIX)/bin/nwg-menu
+	rm -fr $(DESTDIR)$(PREFIX)/share/nwg-menu
 
 run:
 	go run *.go
