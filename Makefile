@@ -10,7 +10,7 @@ get:
 	go get github.com/allan-simon/go-singleinstance
 
 build:
-	go build -o bin/nwg-menu *.go
+	go build -v -o bin/nwg-menu *.go
 
 install:
 	mkdir -p $(DESTDIR)$(PREFIX)/share/nwg-menu

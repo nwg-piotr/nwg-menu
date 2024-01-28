@@ -1,14 +1,11 @@
 # nwg-menu
 
 This code provides the [MenuStart plugin](https://github.com/nwg-piotr/nwg-panel/wiki/plugins:-MenuStart)
-to [nwg-panel](https://github.com/nwg-piotr/nwg-panel). It also may be used standalone, however, with a little
-help from command line arguments.
+to [nwg-panel](https://github.com/nwg-piotr/nwg-panel). It also may be used standalone, however, with a little help from command line arguments.
 
-This program is being developed with [sway](https://github.com/swaywm/sway) in mind. It should work with
-other wlroots-based Wayland compositors, but for now it's only been tested briefly on Wayfire.
-
-The `nwg-menu` command displays the system menu with simplified [freedesktop main categories](https://specifications.freedesktop.org/menu-spec/latest/apa.html) (8 instead of 13). It also provides the search entry,
-to look for installed application on the basis of .desktop files, and for files in XDG user directories.
+The `nwg-menu` command displays the system menu with simplified [freedesktop main categories](https://specifications.freedesktop.org/menu-spec/latest/apa.html) (8 instead of 13). 
+It also provides the search entry, to look for installed application on the basis of .desktop files, and for files in 
+XDG user directories.
 
 You may pin applications by right-clicking them. Pinned items will appear above the categories list. Right-click
 a pinned item to unpin it. The pinned items cache is shared with the `nwggrid` command, which is a part of
@@ -18,8 +15,6 @@ In the bottom-right corner of the window you'll also see a set of buttons: logou
 The commands attached to them may be defined in the nwg-panel settings or given as the arguments.
 
 <img src="https://github.com/nwg-piotr/nwg-menu/assets/20579136/10c46cfc-c936-4395-a29e-db37c953104b" width=640 alt="Screenshot"><br>
-
-[![Packaging status](https://repology.org/badge/vertical-allrepos/nwg-menu.svg)](https://repology.org/project/nwg-menu/versions)
 
 To use the menu standalone (e.g. with another panel/bar or with a key binding), take a look at arguments:
 
@@ -71,6 +66,8 @@ Usage of nwg-menu:
 ```
 
 ## Installation
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/nwg-menu.svg)](https://repology.org/project/nwg-menu/versions)
 
 ### Dependencies
 
