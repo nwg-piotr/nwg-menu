@@ -17,7 +17,7 @@ a pinned item to unpin it. The pinned items cache is shared with the `nwggrid` c
 In the bottom-right corner of the window you'll also see a set of buttons: logout, lock screen, restart and shutdown.
 The commands attached to them may be defined in the nwg-panel settings or given as the arguments.
 
-![00.png](https://scrot.cloud/images/2021/05/03/00.png)
+<img src="https://github.com/nwg-piotr/nwg-menu/assets/20579136/10c46cfc-c936-4395-a29e-db37c953104b" width=640 alt="Screenshot"><br>
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/nwg-menu.svg)](https://repology.org/project/nwg-menu/versions)
 
