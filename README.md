@@ -63,6 +63,8 @@ Usage of nwg-menu:
     	Vertical Alignment: "bottom" or "top" (default "bottom")
   -width int
     	window width
+  -wm string
+      use swaymsg exec (with 'sway' argument) or hyprctl dispatch exec (with 'hyprland') or riverctl spawn (with 'river') to launch programs
 ```
 
 ## Installation

@@ -565,39 +565,28 @@ func launch(command string, terminal bool) {
 		}
 	}
 
-	elements := strings.Split(command, " ")
+	var elements = []string{"/usr/bin/env", "-S", command}
 
-	// find prepended env variables, if any
-	envVarsNum := strings.Count(command, "=")
-	var envVars []string
-
-	cmdIdx := 0
-	lastEnvVarIdx := 0
-
-	if envVarsNum > 0 {
-		for idx, item := range elements {
-			if strings.Contains(item, "=") {
-				lastEnvVarIdx = idx
-				envVars = append(envVars, item)
-			}
-		}
-		cmdIdx = lastEnvVarIdx + 1
-	}
-
-	cmd := exec.Command(elements[cmdIdx], elements[1+cmdIdx:]...)
+	cmd := exec.Command(elements[0], elements[1:]...)
 
 	if terminal {
-		args := []string{"-e", elements[cmdIdx]}
-		cmd = exec.Command(*term, args...)
+		var prefixCommand = *term
+		var args []string
+		if prefixCommand != "foot" {
+			args = []string{"-e", command}
+		} else {
+			args = elements
+		}
+		cmd = exec.Command(prefixCommand, args...)
+	} else if *wm == "sway" {
+		cmd = exec.Command("swaymsg", "exec", strings.Join(elements, " "))
+	} else if *wm == "hyprland" || *wm == "Hyprland" {
+		cmd = exec.Command("hyprctl", "dispatch", "exec", strings.Join(elements, " "))
+	} else if *wm == "river" {
+		cmd = exec.Command("riverctl", "spawn", strings.Join(elements, " "))
 	}
 
-	// set env variables
-	if len(envVars) > 0 {
-		cmd.Env = os.Environ()
-		cmd.Env = append(cmd.Env, envVars...)
-	}
-
-	msg := fmt.Sprintf("env vars: %s; command: '%s'; args: %s\n", envVars, elements[cmdIdx], elements[1+cmdIdx:])
+	msg := fmt.Sprintf("command: %q; args: %q\n", cmd.Args[0], cmd.Args[1:])
 	println(msg)
 
 	go cmd.Run()
