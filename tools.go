@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -148,7 +147,7 @@ func tempDir() string {
 }
 
 func readTextFile(path string) (string, error) {
-	bytes, err := ioutil.ReadFile(path)
+	bytes, err := os.ReadFile(path)
 	if err != nil {
 		return "", err
 	}
@@ -233,8 +232,8 @@ func getAppDirs() []string {
 	return dirs
 }
 
-func listFiles(dir string) ([]fs.FileInfo, error) {
-	files, err := ioutil.ReadDir(dir)
+func listFiles(dir string) ([]fs.DirEntry, error) {
+	files, err := os.ReadDir(dir)
 	if err == nil {
 		return files, nil
 	}
@@ -489,7 +488,7 @@ func pathExists(name string) bool {
 }
 
 func loadTextFile(path string) ([]string, error) {
-	bytes, err := ioutil.ReadFile(path)
+	bytes, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
