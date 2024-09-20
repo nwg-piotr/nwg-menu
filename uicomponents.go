@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io/fs"
 	"path/filepath"
 	"sort"
@@ -16,6 +17,11 @@ func setUpPinnedListBox() *gtk.ListBox {
 
 	if len(pinned) > 0 {
 		for _, desktopID := range pinned {
+			entry := id2entry[desktopID]
+			if entry.DesktopID == "" {
+				log.Debugf("Pinned item doesn't seem to exist: %s", desktopID)
+				continue
+			}
 			row := setUpPinnedListBoxRow(desktopID)
 			listBox.Add(row)
 		}
