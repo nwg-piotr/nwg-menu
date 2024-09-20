@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/glib"
@@ -147,7 +147,7 @@ func tempDir() string {
 }
 
 func readTextFile(path string) (string, error) {
-	bytes, err := ioutil.ReadFile(path)
+	bytes, err := os.ReadFile(path)
 	if err != nil {
 		return "", err
 	}
@@ -232,8 +232,8 @@ func getAppDirs() []string {
 	return dirs
 }
 
-func listFiles(dir string) ([]fs.FileInfo, error) {
-	files, err := ioutil.ReadDir(dir)
+func listFiles(dir string) ([]fs.DirEntry, error) {
+	files, err := os.ReadDir(dir)
 	if err == nil {
 		return files, nil
 	}
@@ -488,7 +488,7 @@ func pathExists(name string) bool {
 }
 
 func loadTextFile(path string) ([]string, error) {
-	bytes, err := ioutil.ReadFile(path)
+	bytes, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -547,6 +547,12 @@ func savePinned() {
 
 	for _, line := range pinned {
 		if line != "" {
+			entry := id2entry[line]
+			if entry.DesktopID == "" {
+				log.Debugf("Pinned item doesn't seem to exist, removing: %s", line)
+				continue
+			}
+
 			_, err := f.WriteString(line + "\n")
 
 			if err != nil {
