@@ -6,13 +6,14 @@ import (
 	"io"
 	"io/fs"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/glib"
@@ -547,6 +548,12 @@ func savePinned() {
 
 	for _, line := range pinned {
 		if line != "" {
+			entry := id2entry[line]
+			if entry.DesktopID == "" {
+				log.Debugf("Pinned item doesn't seem to exist, removing: %s", line)
+				continue
+			}
+
 			_, err := f.WriteString(line + "\n")
 
 			if err != nil {
