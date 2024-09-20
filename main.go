@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -11,6 +10,8 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/allan-simon/go-singleinstance"
 	"github.com/dlasky/gotk3-layershell/layershell"
@@ -122,10 +123,15 @@ var cmdLock = flag.String("cmd-lock", "swaylock -f -c 000000", "screen lock comm
 var cmdLogout = flag.String("cmd-logout", "swaymsg exit", "logout command")
 var cmdRestart = flag.String("cmd-restart", "systemctl reboot", "reboot command")
 var cmdShutdown = flag.String("cmd-shutdown", "systemctl -i poweroff", "shutdown command")
+var debug = flag.Bool("debug", false, "Turn on Debug messages")
 
 func main() {
 	timeStart := time.Now()
 	flag.Parse()
+
+	if *debug {
+		log.SetLevel(log.DebugLevel)
+	}
 
 	if *displayVersion {
 		fmt.Printf("nwg-menu version %s\n", version)
