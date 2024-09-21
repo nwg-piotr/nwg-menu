@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/joshuarubin/go-sway"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"io/fs"
 	"net"
@@ -15,12 +17,9 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
-	"github.com/joshuarubin/go-sway"
 )
 
 type monitor struct {
@@ -685,13 +684,8 @@ func mapOutputs() (map[string]*gdk.Monitor, error) {
 		num := display.GetNMonitors()
 		for i := 0; i < num; i++ {
 			mon, _ := display.GetMonitor(i)
-			geometry := mon.GetGeometry()
-			// assign output to monitor on the basis of the same x, y coordinates
-			for _, output := range outputs {
-				if int(output.Rect.X) == geometry.GetX() && int(output.Rect.Y) == geometry.GetY() {
-					result[output.Name] = mon
-				}
-			}
+			output := outputs[i]
+			result[output.Name] = mon
 		}
 	} else {
 		return nil, errors.New("output assignment only supported on sway and Hyprland")
