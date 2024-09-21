@@ -2,9 +2,12 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -19,6 +22,30 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 	"github.com/joshuarubin/go-sway"
 )
+
+type monitor struct {
+	Id              int     `json:"id"`
+	Name            string  `json:"name"`
+	Description     string  `json:"description"`
+	Make            string  `json:"make"`
+	Model           string  `json:"model"`
+	Serial          string  `json:"serial"`
+	Width           int     `json:"width"`
+	Height          int     `json:"height"`
+	RefreshRate     float64 `json:"refreshRate"`
+	X               int     `json:"x"`
+	Y               int     `json:"y"`
+	ActiveWorkspace struct {
+		Id   int    `json:"id"`
+		Name string `json:"name"`
+	} `json:"activeWorkspace"`
+	Reserved   []int   `json:"reserved"`
+	Scale      float64 `json:"scale"`
+	Transform  int     `json:"transform"`
+	Focused    bool    `json:"focused"`
+	DpmsStatus bool    `json:"dpmsStatus"`
+	Vrr        bool    `json:"vrr"`
+}
 
 /*
 Window on-leave-notify event hides the window with glib Timeout 1000 ms.
@@ -617,34 +644,101 @@ func open(filePath string) {
 func mapOutputs() (map[string]*gdk.Monitor, error) {
 	result := make(map[string]*gdk.Monitor)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
-	defer cancel()
+	if os.Getenv("HYPRLAND_INSTANCE_SIGNATURE") != "" {
+		err := listHyprlandMonitors()
+		if err == nil {
 
-	client, err := sway.New(ctx)
-	if err != nil {
-		return nil, err
-	}
+			display, err := gdk.DisplayGetDefault()
+			if err != nil {
+				return nil, err
+			}
 
-	outputs, err := client.GetOutputs(ctx)
-	if err != nil {
-		return nil, err
-	}
+			num := display.GetNMonitors()
+			for i := 0; i < num; i++ {
+				mon, _ := display.GetMonitor(i)
+				output := hyprlandMonitors[i]
+				result[output.Name] = mon
+			}
+		} else {
+			return nil, err
+		}
 
-	display, err := gdk.DisplayGetDefault()
-	if err != nil {
-		return nil, err
-	}
+	} else if os.Getenv("SWAYSOCK") != "" {
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+		defer cancel()
 
-	num := display.GetNMonitors()
-	for i := 0; i < num; i++ {
-		monitor, _ := display.GetMonitor(i)
-		geometry := monitor.GetGeometry()
-		// assign output to monitor on the basis of the same x, y coordinates
-		for _, output := range outputs {
-			if int(output.Rect.X) == geometry.GetX() && int(output.Rect.Y) == geometry.GetY() {
-				result[output.Name] = monitor
+		client, err := sway.New(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		outputs, err := client.GetOutputs(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		display, err := gdk.DisplayGetDefault()
+		if err != nil {
+			return nil, err
+		}
+
+		num := display.GetNMonitors()
+		for i := 0; i < num; i++ {
+			mon, _ := display.GetMonitor(i)
+			geometry := mon.GetGeometry()
+			// assign output to monitor on the basis of the same x, y coordinates
+			for _, output := range outputs {
+				if int(output.Rect.X) == geometry.GetX() && int(output.Rect.Y) == geometry.GetY() {
+					result[output.Name] = mon
+				}
 			}
 		}
+	} else {
+		return nil, errors.New("output assignment only supported on sway and Hyprland")
 	}
+
 	return result, nil
+}
+
+func hyprctl(cmd string) ([]byte, error) {
+	his := os.Getenv("HYPRLAND_INSTANCE_SIGNATURE")
+	xdgRuntimeDir := os.Getenv("XDG_RUNTIME_DIR")
+	hyprDir := ""
+	if xdgRuntimeDir != "" {
+		hyprDir = fmt.Sprintf("%s/hypr", xdgRuntimeDir)
+	} else {
+		hyprDir = "/tmp/hypr"
+	}
+
+	socketFile := fmt.Sprintf("%s/%s/.socket.sock", hyprDir, his)
+	conn, err := net.Dial("unix", socketFile)
+	if err != nil {
+		return nil, err
+	}
+
+	message := []byte(cmd)
+	_, err = conn.Write(message)
+	if err != nil {
+		return nil, err
+	}
+
+	reply := make([]byte, 102400)
+	n, err := conn.Read(reply)
+	if err != nil {
+		return nil, err
+	}
+
+	defer conn.Close()
+
+	return reply[:n], nil
+}
+
+func listHyprlandMonitors() error {
+	reply, err := hyprctl("j/monitors")
+	if err != nil {
+		return err
+	} else {
+		err = json.Unmarshal([]byte(reply), &hyprlandMonitors)
+	}
+	return err
 }

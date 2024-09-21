@@ -23,14 +23,15 @@ import (
 const version = "0.1.5"
 
 var (
-	appDirs         []string
-	configDirectory string
-	pinnedFile      string
-	pinned          []string
-	leftBox         *gtk.Box
-	rightBox        *gtk.Box
-	src             glib.SourceHandle
-	id2entry        map[string]desktopEntry
+	appDirs          []string
+	configDirectory  string
+	pinnedFile       string
+	pinned           []string
+	leftBox          *gtk.Box
+	rightBox         *gtk.Box
+	hyprlandMonitors []monitor
+	src              glib.SourceHandle
+	id2entry         map[string]desktopEntry
 )
 
 var categoryNames = [...]string{
@@ -165,7 +166,7 @@ func main() {
 				} else {
 					println("Already running")
 				}*/
-				println("Running instance found, sending SIGTERM and exiting...")
+				log.Info("Running instance found, sending SIGTERM and exiting...")
 				syscall.Kill(i, syscall.SIGTERM)
 			}
 		}
@@ -177,7 +178,7 @@ func main() {
 	if *lang == "" && os.Getenv("LANG") != "" {
 		*lang = strings.Split(os.Getenv("LANG"), ".")[0]
 	}
-	println(fmt.Sprintf("lang: %s", *lang))
+	log.Infof("lang: %s", *lang)
 
 	// ENVIRONMENT
 	configDirectory = configDir()
@@ -205,7 +206,7 @@ func main() {
 	setUpCategories()
 
 	desktopFiles := listDesktopFiles()
-	println(fmt.Sprintf("Found %v desktop files", len(desktopFiles)))
+	log.Infof("Found %v desktop files", len(desktopFiles))
 
 	parseDesktopFiles(desktopFiles)
 
@@ -216,10 +217,9 @@ func main() {
 
 	err = cssProvider.LoadFromPath(cssFile)
 	if err != nil {
-		println(fmt.Sprintf("ERROR: %s css file not found or erroneous. Using GTK styling.", cssFile))
-		println(fmt.Sprintf(">>> %s", err))
+		log.Warnf("ERROR: %s css file not found or erroneous. Using GTK styling.", cssFile)
 	} else {
-		println(fmt.Sprintf("Using style from %s", cssFile))
+		log.Infof("Using style from %s", cssFile)
 		screen, _ := gdk.ScreenGetDefault()
 		gtk.AddProviderForScreen(screen, cssProvider, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 	}
@@ -238,9 +238,11 @@ func main() {
 		if err == nil {
 			monitor := output2mon[*targetOutput]
 			layershell.SetMonitor(win, monitor)
+			log.Infof("Assigning window to %s, monitor: %s", *targetOutput, monitor)
 
 		} else {
 			println(err)
+			log.Warnf("Couldn't assign to a monitor, %s", err)
 		}
 	}
 
