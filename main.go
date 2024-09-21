@@ -319,11 +319,18 @@ func main() {
 		leftColumn.PackStart(searchEntry, false, false, 10)
 	}
 
-	pinnedListBox = setUpPinnedListBox()
-	leftColumn.PackStart(pinnedListBox, false, false, 10)
+	if *valign == "bottom" {
+		pinnedListBox = setUpPinnedListBox()
+		leftColumn.PackStart(pinnedListBox, false, false, 10)
+	}
 
 	categoriesListBox = setUpCategoriesListBox()
 	leftColumn.PackStart(categoriesListBox, false, false, 10)
+
+	if *valign == "top" {
+		pinnedListBox = setUpPinnedListBox()
+		leftColumn.PackStart(pinnedListBox, false, false, 10)
+	}
 
 	if *valign != "top" {
 		leftColumn.PackEnd(searchEntry, false, false, 10)
