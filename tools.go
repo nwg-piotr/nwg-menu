@@ -111,7 +111,7 @@ func mapXdgUserDirs() map[string]string {
 
 	userDirsFile := filepath.Join(home, ".config/user-dirs.dirs")
 	if pathExists(userDirsFile) {
-		println(fmt.Sprintf("Using XDG user dirs from %s", userDirsFile))
+		log.Infof("Using XDG user dirs from %s", userDirsFile)
 		lines, _ := loadTextFile(userDirsFile)
 		for _, l := range lines {
 			if strings.HasPrefix(l, "XDG_DOCUMENTS_DIR") {
@@ -441,7 +441,7 @@ func parseDesktopFiles(desktopFiles []string) {
 			}
 		}
 	}
-	println(fmt.Sprintf("Skipped %v duplicates; %v .desktop entries hidden by \"NoDisplay=true\"", skipped, hidden))
+	log.Infof("Skipped %v duplicates; %v .desktop entries hidden by \"NoDisplay=true\"", skipped, hidden)
 }
 
 // freedesktop Main Categories list consists of 13 entries. Let's contract it to 8+1 ("Other").

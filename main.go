@@ -238,11 +238,10 @@ func main() {
 		if err == nil {
 			monitor := output2mon[*targetOutput]
 			layershell.SetMonitor(win, monitor)
-			log.Infof("Assigning window to %s, monitor: %s", *targetOutput, monitor)
+			log.Infof("Assigning window to output %s", *targetOutput)
 
 		} else {
-			println(err)
-			log.Warnf("Couldn't assign to a monitor, %s", err)
+			log.Warnf("Couldn't list available outputs, %s", err)
 		}
 	}
 
@@ -370,6 +369,7 @@ func main() {
 	categoriesListBox.UnselectAll()
 	searchEntry.GrabFocus()
 	t := time.Now()
-	println(fmt.Sprintf("UI created in %v ms. Thanks for watching.", t.Sub(timeStart).Milliseconds()))
+	//println(fmt.Sprintf("UI created in %v ms. Thanks for watching.", t.Sub(timeStart).Milliseconds()))
+	log.Infof("UI created in %v ms. Thanks for watching.", t.Sub(timeStart).Milliseconds())
 	gtk.Main()
 }
