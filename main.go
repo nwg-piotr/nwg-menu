@@ -118,13 +118,14 @@ var sLen = flag.Int("slen", 80, "Search result length Limit")
 var itemPadding = flag.Uint("padding", 2, "vertical item padding")
 var lang = flag.String("lang", "", "force lang, e.g. \"en\", \"pl\"")
 var fileManager = flag.String("fm", "thunar", "File Manager")
-var term = flag.String("term", "alacritty", "Terminal emulator")
+var term = flag.String("term", "foot", "Terminal emulator")
 var wm = flag.String("wm", "", "use swaymsg exec (with 'sway' argument) or hyprctl dispatch exec (with 'hyprland') or riverctl spawn (with 'river') to launch programs")
 var cmdLock = flag.String("cmd-lock", "swaylock -f -c 000000", "screen lock command")
 var cmdLogout = flag.String("cmd-logout", "swaymsg exit", "logout command")
 var cmdRestart = flag.String("cmd-restart", "systemctl reboot", "reboot command")
 var cmdShutdown = flag.String("cmd-shutdown", "systemctl -i poweroff", "shutdown command")
-var debug = flag.Bool("debug", false, "Turn on Debug messages")
+var debug = flag.Bool("debug", false, "turn on Debug messages")
+var hover = flag.Bool("t", false, "hovering caTegories opens submenus")
 
 func main() {
 	timeStart := time.Now()
@@ -264,7 +265,7 @@ func main() {
 	layershell.SetMargin(win, layershell.LAYER_SHELL_EDGE_RIGHT, *marginRight)
 	layershell.SetMargin(win, layershell.LAYER_SHELL_EDGE_BOTTOM, *marginBottom)
 
-	layershell.SetKeyboardMode(win, layershell.LAYER_SHELL_KEYBOARD_MODE_EXCLUSIVE)
+	layershell.SetKeyboardMode(win, layershell.LAYER_SHELL_KEYBOARD_MODE_ON_DEMAND)
 
 	win.Connect("destroy", func() {
 		gtk.MainQuit()

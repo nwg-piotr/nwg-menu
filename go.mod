@@ -13,6 +13,6 @@ require (
 	github.com/joshuarubin/lifecycle v1.1.4 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/sync v0.10.0 // indirect
+	golang.org/x/sys v0.29.0 // indirect
 )

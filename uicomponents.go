@@ -86,6 +86,13 @@ func setUpPinnedListBoxRow(desktopID string) *gtk.ListBoxRow {
 		return false
 	})
 
+	if *hover {
+		eventBox.Connect("enter-notify-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
+			clearSearchResult()
+			return true
+		})
+	}
+
 	return row
 }
 
@@ -204,6 +211,32 @@ func connectCategoryListBox(catName string, eventBox *gtk.EventBox, row *gtk.Lis
 		}
 		return false
 	})
+
+	if *hover {
+		eventBox.Connect("enter-notify-event", func(eb *gtk.EventBox, e *gdk.Event) bool {
+			searchEntry.SetText("")
+			clearSearchResult()
+			row.SetSelectable(true)
+			row.SetCanFocus(false)
+			//categoriesListBox.SelectRow(row)
+			listBox := setUpCategoryListBox(listCategory)
+			if resultWindow != nil {
+				resultWindow.Destroy()
+			}
+			resultWindow, _ = gtk.ScrolledWindowNew(nil, nil)
+			resultWindow.SetPolicy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+			resultWindow.Connect("enter-notify-event", func() {
+				cancelClose()
+			})
+			resultWrapper.PackStart(resultWindow, true, true, 0)
+			resultWindow.Add(listBox)
+
+			userDirsListBox.Hide()
+			resultWindow.ShowAll()
+
+			return true
+		})
+	}
 }
 
 func setUpBackButton() *gtk.Box {
@@ -392,6 +425,13 @@ func setUpSearchEntry() *gtk.SearchEntry {
 		cancelClose()
 		restoreButtonBox()
 	})
+	if *hover {
+		searchEntry.Connect("enter-notify-event", func(se *gtk.SearchEntry, e *gdk.Event) bool {
+			clearSearchResult()
+			return true
+		})
+	}
+
 	searchEntry.Connect("search-changed", func() {
 		phrase, _ = searchEntry.GetText()
 		if len(phrase) > 0 {
@@ -587,7 +627,7 @@ func setUpButtonBox() *gtk.EventBox {
 	eventBox, _ := gtk.EventBoxNew()
 	wrapperHbox, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
 	box, _ := gtk.BoxNew(gtk.ORIENTATION_HORIZONTAL, 0)
-	wrapperHbox.PackEnd(box, false, true, 10)
+	wrapperHbox.PackStart(box, false, true, 10)
 	eventBox.Add(wrapperHbox)
 
 	btn, _ := gtk.ButtonNew()
@@ -711,6 +751,5 @@ func clearSearchResult() {
 		categoriesListBox.UnselectAll()
 	}
 	backButton.Hide()
-	//searchEntry.SetText("")
-	//searchEntry.GrabFocus()
+
 }
