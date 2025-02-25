@@ -86,12 +86,12 @@ func setUpPinnedListBoxRow(desktopID string) *gtk.ListBoxRow {
 		return false
 	})
 
-	if *hover {
-		eventBox.Connect("enter-notify-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
-			clearSearchResult()
-			return true
-		})
-	}
+	//if *hover {
+	//	eventBox.Connect("enter-notify-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
+	//		clearSearchResult()
+	//		return true
+	//	})
+	//}
 
 	return row
 }
@@ -425,12 +425,12 @@ func setUpSearchEntry() *gtk.SearchEntry {
 		cancelClose()
 		restoreButtonBox()
 	})
-	if *hover {
-		searchEntry.Connect("enter-notify-event", func(se *gtk.SearchEntry, e *gdk.Event) bool {
-			clearSearchResult()
-			return true
-		})
-	}
+	//if *hover {
+	//	searchEntry.Connect("enter-notify-event", func(se *gtk.SearchEntry, e *gdk.Event) bool {
+	//		clearSearchResult()
+	//		return true
+	//	})
+	//}
 
 	searchEntry.Connect("search-changed", func() {
 		phrase, _ = searchEntry.GetText()
