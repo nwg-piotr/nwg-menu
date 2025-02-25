@@ -86,12 +86,12 @@ func setUpPinnedListBoxRow(desktopID string) *gtk.ListBoxRow {
 		return false
 	})
 
-	//if *hover {
-	//	eventBox.Connect("enter-notify-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
-	//		clearSearchResult()
-	//		return true
-	//	})
-	//}
+	if *hover {
+		eventBox.Connect("enter-notify-event", func(row *gtk.ListBoxRow, e *gdk.Event) bool {
+			clearSearchResult()
+			return true
+		})
+	}
 
 	return row
 }
