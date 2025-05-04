@@ -154,7 +154,11 @@ func main() {
 	}()
 
 	// We want the same key/mouse binding to turn the dock off: kill the running instance and exit.
-	lockFilePath := fmt.Sprintf("%s/nwg-menu.lock", tempDir())
+	lockFileDir := runtimeDir()
+	if lockFileDir == "" {
+		lockFileDir = tempDir()
+	}
+	lockFilePath := fmt.Sprintf("%s/nwg-menu.lock", lockFileDir)
 	lockFile, err := singleinstance.CreateLockFile(lockFilePath)
 	if err != nil {
 		pid, err := readTextFile(lockFilePath)
