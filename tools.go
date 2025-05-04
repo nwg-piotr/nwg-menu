@@ -161,6 +161,10 @@ func cacheDir() string {
 	return ""
 }
 
+func runtimeDir() string {
+	return os.Getenv("XDG_RUNTIME_DIR")
+}
+
 func tempDir() string {
 	if os.Getenv("TMPDIR") != "" {
 		return os.Getenv("TMPDIR")
