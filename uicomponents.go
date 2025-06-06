@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/dlasky/gotk3-layershell/layershell"
 	log "github.com/sirupsen/logrus"
 	"io/fs"
 	"path/filepath"
@@ -752,4 +753,41 @@ func clearSearchResult() {
 	}
 	backButton.Hide()
 
+}
+
+func setUpBackgroundWindow() {
+	win, err := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
+	if err != nil {
+		log.Fatal("Unable to create background window:", err)
+	}
+
+	win.SetProperty("name", "bcg-window")
+
+	layershell.InitForWindow(win)
+	layershell.SetAnchor(win, layershell.LAYER_SHELL_EDGE_BOTTOM, true)
+	layershell.SetAnchor(win, layershell.LAYER_SHELL_EDGE_TOP, true)
+	layershell.SetAnchor(win, layershell.LAYER_SHELL_EDGE_LEFT, true)
+	layershell.SetAnchor(win, layershell.LAYER_SHELL_EDGE_RIGHT, true)
+
+	layershell.SetExclusiveZone(win, -1)
+	layershell.SetLayer(win, layershell.LAYER_SHELL_LAYER_TOP)
+
+	cssProvider, _ := gtk.CssProviderNew()
+	css := "#bcg-window { background-color: rgba (0, 0, 0, 0.2) }"
+	err = cssProvider.LoadFromData(css)
+	if err != nil {
+		log.Warn(err)
+	}
+	screen, _ := gdk.ScreenGetDefault()
+	gtk.AddProviderForScreen(screen, cssProvider, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
+	win.Connect("touch-event", func() {
+		gtk.MainQuit()
+	})
+
+	win.Connect("button-release-event", func() {
+		gtk.MainQuit()
+	})
+
+	win.ShowAll()
 }
