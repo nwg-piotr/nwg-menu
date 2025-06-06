@@ -30,16 +30,17 @@ Usage of nwg-menu:
   -cmd-shutdown string
     	shutdown command (default "systemctl -i poweroff")
   -d	auto-hiDe: close window when left
+  -debug
+    	turn on Debug messages
   -fm string
     	File Manager (default "thunar")
   -ha string
     	Horizontal Alignment: "left" or "right" (default "left")
-  -height int
-    	window height
   -isl int
     	Icon Size Large (default 32)
   -iss int
     	Icon Size Small (default 16)
+  -k	clicKing outside closes the window
   -lang string
     	force lang, e.g. "en", "pl"
   -mb int
@@ -56,15 +57,16 @@ Usage of nwg-menu:
     	vertical item padding (default 2)
   -s string
     	Styling: css file name (default "menu-start.css")
+  -slen int
+    	Search result length Limit (default 80)
+  -t	hovering caTegories opens submenus
   -term string
-    	Terminal emulator (default "alacritty")
+    	Terminal emulator (default "foot")
   -v	display Version information
   -va string
     	Vertical Alignment: "bottom" or "top" (default "bottom")
-  -width int
-    	window width
   -wm string
-      use swaymsg exec (with 'sway' argument) or hyprctl dispatch exec (with 'hyprland') or riverctl spawn (with 'river') to launch programs
+    	use swaymsg exec (with 'sway' argument) or hyprctl dispatch exec (with 'hyprland') or riverctl spawn (with 'river') to launch programs
 ```
 
 ## Installation
