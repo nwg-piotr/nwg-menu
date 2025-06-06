@@ -20,7 +20,7 @@ import (
 	"github.com/gotk3/gotk3/gtk"
 )
 
-const version = "0.1.8"
+const version = "0.1.9"
 
 var (
 	appDirs          []string
@@ -126,6 +126,7 @@ var cmdRestart = flag.String("cmd-restart", "systemctl reboot", "reboot command"
 var cmdShutdown = flag.String("cmd-shutdown", "systemctl -i poweroff", "shutdown command")
 var debug = flag.Bool("debug", false, "turn on Debug messages")
 var hover = flag.Bool("t", false, "hovering caTegories opens submenus")
+var clickOutside = flag.Bool("k", false, "clicKing outside closes the window")
 
 func main() {
 	timeStart := time.Now()
@@ -227,6 +228,10 @@ func main() {
 		log.Infof("Using style from %s", cssFile)
 		screen, _ := gdk.ScreenGetDefault()
 		gtk.AddProviderForScreen(screen, cssProvider, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+	}
+
+	if *clickOutside {
+		setUpBackgroundWindow()
 	}
 
 	win, err := gtk.WindowNew(gtk.WINDOW_TOPLEVEL)
