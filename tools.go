@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/joshuarubin/go-sway"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"io/fs"
 	"net"
@@ -16,6 +14,9 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/joshuarubin/go-sway"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/glib"
@@ -617,7 +618,7 @@ func launch(command string, terminal bool) {
 	} else if *wm == "sway" {
 		cmd = exec.Command("swaymsg", "exec", strings.Join(elements, " "))
 	} else if *wm == "hyprland" || *wm == "Hyprland" {
-		cmd = exec.Command("hyprctl", "dispatch", "exec", strings.Join(elements, " "))
+		cmd = exec.Command("hyprctl", "dispatch", fmt.Sprintf("hl.dsp.exec_cmd(%q)", strings.Join(elements, " ")))
 	} else if *wm == "river" {
 		cmd = exec.Command("riverctl", "spawn", strings.Join(elements, " "))
 	}
